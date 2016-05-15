@@ -166,6 +166,16 @@ class Game extends Component {
 
     render() {
         const { tileWidth, tileHeight } = getTileSize()
+
+        // Show lives with repeating hearts
+        const numLives = 3 // TODO
+        const lifeEls = []
+        for (let i = 0; i < numLives; i++) {
+            lifeEls.push(<Image key={ i }
+                                source={ require('./images/heart.png') }
+                                style={ styles.lifeImage } />)
+        }
+
         return (
             <Image source={ require('./images/space.png') }
                    style={ styles.background }>
@@ -173,6 +183,7 @@ class Game extends Component {
                     <Text style={ styles.score }>
                         Score: 99
                     </Text>
+                    { lifeEls }
                     <Image source={ require('./images/pause.png') }
                            style={ styles.pauseButton } />
                 </View>
@@ -226,16 +237,22 @@ const styles = StyleSheet.create({
     },
     navBar: {
         alignItems: 'center',
-        backgroundColor: 'black',
         flexDirection: 'row',
         height: NAV_HEIGHT
     },
     score: {
+        backgroundColor: 'transparent',
         color: 'white',
-        flex: 1
+        flex: 1,
+        textAlign: 'center'
     },
     pauseButton: {
         height: NAV_HEIGHT,
+        resizeMode: 'contain'
+    },
+    lifeImage: {
+        height: NAV_HEIGHT,
+        width: NAV_HEIGHT,
         resizeMode: 'contain'
     }
 })
