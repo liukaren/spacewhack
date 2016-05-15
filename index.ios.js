@@ -18,7 +18,9 @@ import {
 } from 'react-native'
 
 const MOLE_TYPES = {
-    ALIEN: 1
+    ALIEN: {
+        scoreValue: 10
+    }
 }
 
 // TODO: make this based on screen size?
@@ -87,9 +89,13 @@ const NUM_COLS = 3
 const NUM_ROWS = 5
 
 class Game extends Component {
-    constructor() {
-        super()
+    constructor(props) {
+        super(props)
 
+        this.resetGame()
+    }
+
+    resetGame() {
         // Initialize an empty board of `null`s
         const board = []
         for (let rowIndex = 0; rowIndex < NUM_ROWS; rowIndex++) {
@@ -100,8 +106,7 @@ class Game extends Component {
             board.push(row)
         }
 
-        this.state = { board }
-
+        this.state = { board, score: 0 }
         this.stepTimeout = null
     }
 
@@ -160,8 +165,10 @@ class Game extends Component {
         clearTimeout(mole.removeTimeout)
         // TODO: play some kind of bop animation here
         this.state.board[row][col] = null
-        this.setState({ board: this.state.board })
-        // TODO: add to the score
+        this.setState({
+            board: this.state.board,
+            score: this.state.score + mole.moleType.scoreValue
+        })
     }
 
     render() {
@@ -181,7 +188,7 @@ class Game extends Component {
                    style={ styles.background }>
                 <View style={ styles.navBar }>
                     <Text style={ styles.score }>
-                        Score: 99
+                        Score: { this.state.score }
                     </Text>
                     { lifeEls }
                     <Image source={ require('./images/pause.png') }
@@ -238,13 +245,16 @@ const styles = StyleSheet.create({
     navBar: {
         alignItems: 'center',
         flexDirection: 'row',
-        height: NAV_HEIGHT
+        height: NAV_HEIGHT,
+        padding: 10
     },
     score: {
         backgroundColor: 'transparent',
         color: 'white',
         flex: 1,
-        textAlign: 'center'
+        fontFamily: 'Gill Sans',
+        fontSize: 20,
+        fontWeight: 'bold'
     },
     pauseButton: {
         height: NAV_HEIGHT,
