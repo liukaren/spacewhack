@@ -29,16 +29,12 @@ const MOLE_DURATION_MS = 2500 // How long a mole stays after it is added
 const MOLE_ANIMATION_MS = 500 // How long to animate entering / exiting
 
 class Mole extends Component {
-    onBop() {
-        console.log('bopped')
-    }
-
     render() {
         const image = require('./images/alien.png') // TODO: switch based on moleType
         const animValue = this.props.moleData.animValue
         const { height, width } = Dimensions.get('window')
 
-        return <TouchableWithoutFeedback onPress={ this.onBop }>
+        return <TouchableWithoutFeedback onPress={ this.props.onBop }>
             <Animated.Image source={ image }
                 style={{
                     width: width / NUM_COLS,
@@ -69,7 +65,8 @@ class Mole extends Component {
 Mole.propTypes = {
     moleData: PropTypes.shape({
         moleType: PropTypes.oneOf(Object.keys(MOLE_TYPES).map((t) => MOLE_TYPES[t])),
-        animValue: PropTypes.object
+        animValue: PropTypes.object,
+        onBop: PropTypes.func
     })
 }
 
@@ -93,8 +90,6 @@ class Game extends Component {
 
         this.state = { board }
 
-        // TODO: clear these timeouts on unmount
-        this.moleRemoveTimeouts = []
         this.stepTimeout = null
     }
 
@@ -120,13 +115,6 @@ class Game extends Component {
             return
         }
 
-        this.state.board[position.row][position.col] = {
-            moleType: MOLE_TYPES.ALIEN,
-            animValue
-        }
-        // Animate forwards to 1
-        Animated.spring(animValue, { toValue: 1, friction: 3 }).start()
-
         // After MOLE_DURATION_MS, remove the mole
         const timeout = setTimeout(() => {
             // Animate back to 0
@@ -136,11 +124,15 @@ class Game extends Component {
                 this.state.board[position.row][position.col] = null
                 this.setState({ board: this.state.board })
             })
-
-            this.moleRemoveTimeouts.splice(
-                this.moleRemoveTimeouts.indexOf(timeout), 1)
         }, MOLE_DURATION_MS)
-        this.moleRemoveTimeouts.push(timeout)
+
+        this.state.board[position.row][position.col] = {
+            moleType: MOLE_TYPES.ALIEN,
+            animValue,
+            removeTimeout: timeout // TODO: Clear all timeout on unmount
+        }
+        // Animate forwards to 1
+        Animated.spring(animValue, { toValue: 1, friction: 3 }).start()
     }
 
     step() {
@@ -149,6 +141,15 @@ class Game extends Component {
 
         const timeUntilNextStep = (Math.random() * ADD_INTERVAL_RANGE_MS) + ADD_INTERVAL_MIN_MS
         this.stepTimeout = setTimeout(this.step.bind(this), timeUntilNextStep)
+    }
+
+    onBop(row, col) {
+        const mole = this.state.board[row][col]
+        clearTimeout(mole.removeTimeout)
+        // TODO: play some kind of bop animation here
+        this.state.board[row][col] = null
+        this.setState({ board: this.state.board })
+        // TODO: add to the score
     }
 
     render() {
@@ -166,7 +167,8 @@ class Game extends Component {
                                         width: width / NUM_COLS,
                                         height: height / NUM_ROWS
                                     }}>
-                                    { col && <Mole moleData={ col } /> }
+                                    { col && <Mole moleData={ col }
+                                                   onBop={ () => { this.onBop(rowIndex, colIndex) } } /> }
                                 </Image>
                             </View>
                         )) }
