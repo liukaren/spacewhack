@@ -200,7 +200,7 @@ class Game extends Component {
                         <View style={ styles.row } key={ rowIndex }>
                             { row.map((col, colIndex) => (
                                 <View style={ styles.col } key={ colIndex }>
-                                    <Image source={ require('./images/heart.png') }
+                                    <Image source={ require('./images/wormhole.png') }
                                         style={{
                                             resizeMode: 'contain',
                                             width: tileWidth,
