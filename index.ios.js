@@ -8,9 +8,11 @@ import React, { Component, PropTypes } from 'react'
 import {
     Animated,
     AppRegistry,
+    Dimensions,
     Image,
     StyleSheet,
     Text,
+    TouchableWithoutFeedback,
     View
 } from 'react-native'
 
@@ -27,32 +29,41 @@ const MOLE_DURATION_MS = 2500 // How long a mole stays after it is added
 const MOLE_ANIMATION_MS = 500 // How long to animate entering / exiting
 
 class Mole extends Component {
+    onBop() {
+        console.log('bopped')
+    }
+
     render() {
         const image = require('./images/alien.png') // TODO: switch based on moleType
         const animValue = this.props.moleData.animValue
-        return <Animated.Image source={ image }
-            style={{
-                flex: 1,
-                resizeMode: 'contain',
-                // Gets narrower and taller when rising,
-                // then fatter and shorter when descending
-                transform: [{
-                    scaleX: animValue.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [1.3, 1]
-                    })
-                }, {
-                    scaleY: animValue.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0.7, 1]
-                    })
-                }, {
-                    translateY: animValue.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [50, -50] // start below the fold, pop over it
-                    })
-                }]
-            }} />
+        const { height, width } = Dimensions.get('window')
+
+        return <TouchableWithoutFeedback onPress={ this.onBop }>
+            <Animated.Image source={ image }
+                style={{
+                    width: width / NUM_COLS,
+                    height: height / NUM_ROWS,
+                    resizeMode: 'contain',
+                    // Gets narrower and taller when rising,
+                    // then fatter and shorter when descending
+                    transform: [{
+                        scaleX: animValue.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [1.3, 1]
+                        })
+                    }, {
+                        scaleY: animValue.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0.7, 1]
+                        })
+                    }, {
+                        translateY: animValue.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [100, 0] // start below the fold, pop over it
+                        })
+                    }]
+                }} />
+        </TouchableWithoutFeedback>
     }
 }
 Mole.propTypes = {
@@ -62,19 +73,19 @@ Mole.propTypes = {
     })
 }
 
+// TODO: Make these variable
+const NUM_COLS = 3
+const NUM_ROWS = 5
 
 class Game extends Component {
     constructor() {
         super()
 
-        const numCols = 3
-        const numRows = 5
-
         // Initialize an empty board of `null`s
         const board = []
-        for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
+        for (let rowIndex = 0; rowIndex < NUM_ROWS; rowIndex++) {
             let row = []
-            for (let colIndex = 0; colIndex < numCols; colIndex++) {
+            for (let colIndex = 0; colIndex < NUM_COLS; colIndex++) {
                 row.push(null)
             }
             board.push(row)
@@ -141,6 +152,7 @@ class Game extends Component {
     }
 
     render() {
+        const { height, width } = Dimensions.get('window')
         return (
             <View style={styles.container}>
                 { this.state.board.map((row, rowIndex) => (
@@ -148,7 +160,12 @@ class Game extends Component {
                         { row.map((col, colIndex) => (
                             <View style={ styles.col } key={ colIndex }>
                                 <Image source={ require('./images/heart.png') }
-                                    style={ styles.backgroundImage }>
+                                    style={{
+                                        resizeMode: 'contain',
+                                        backgroundColor: 'green',
+                                        width: width / NUM_COLS,
+                                        height: height / NUM_ROWS
+                                    }}>
                                     { col && <Mole moleData={ col } /> }
                                 </Image>
                             </View>
@@ -174,14 +191,8 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        flexDirection: 'row',
 
         backgroundColor: 'pink'
-    },
-    backgroundImage: {
-        flex: 1,
-        flexDirection: 'row',
-        resizeMode: 'contain'
     }
 })
 
