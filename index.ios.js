@@ -9,6 +9,7 @@ import {
     Animated,
     AppRegistry,
     Dimensions,
+    Easing,
     Image,
     StatusBar,
     StyleSheet,
@@ -33,6 +34,8 @@ const ADD_INTERVAL_RANGE_MS = ADD_INTERVAL_MAX_MS - ADD_INTERVAL_MIN_MS
 
 const MOLE_DURATION_MS = 2500 // How long a mole stays after it is added
 const MOLE_ANIMATION_MS = 500 // How long to animate entering / exiting
+const WORMHOLE_ANIMATION_MS = 1000 // How long to animate the wormhole opening and closing
+const MOLE_DELAY_MS = 300 // How long to wait between opening the wormhole and showing the mole
 
 function getTileSize() {
     const { height, width } = Dimensions.get('window')
@@ -46,33 +49,53 @@ class Mole extends Component {
     render() {
         const image = require('./images/alien.png') // TODO: switch based on moleType
         const animValue = this.props.moleData.animValue
+        const wormHoleAnimValue = this.props.moleData.wormHoleAnimValue
         const { tileWidth, tileHeight } = getTileSize()
 
         return <TouchableWithoutFeedback onPress={ this.props.onBop }>
-            <Animated.Image source={ image }
-                style={{
-                    width: tileWidth,
-                    height: tileHeight,
-                    resizeMode: 'contain',
-                    // Gets narrower and taller when rising,
-                    // then fatter and shorter when descending
-                    transform: [{
-                        scaleX: animValue.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [1.3, 1]
-                        })
-                    }, {
-                        scaleY: animValue.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0.7, 1]
-                        })
-                    }, {
-                        translateY: animValue.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [100, 0] // start below the fold, pop over it
-                        })
-                    }]
-                }} />
+            <View>
+                <Animated.Image source={ require('./images/wormhole.png') }
+                                style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    resizeMode: 'contain',
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    opacity: wormHoleAnimValue.interpolate({
+                                        inputRange: [0, 0.8, 1],
+                                        outputRange: [0, 1, 0]
+                                    }),
+                                    transform: [{
+                                        rotate: wormHoleAnimValue.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: ['0deg', '90deg']
+                                        })
+                                    }, {
+                                        scale: wormHoleAnimValue.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [0.5, 1]
+                                        })
+                                    }]
+                               }} />
+                <Animated.Image source={ image }
+                                style={{
+                                    width: tileWidth,
+                                    height: tileHeight,
+                                    resizeMode: 'contain',
+                                    opacity: animValue.interpolate({
+                                        // Invisible until the start of the animation
+                                        inputRange: [0.1, 1],
+                                        outputRange: [0, 1]
+                                    }),
+                                    transform: [{
+                                        scale: animValue.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [0.5, 0.8]
+                                        })
+                                    }]
+                                }} />
+            </View>
         </TouchableWithoutFeedback>
     }
 }
@@ -80,6 +103,7 @@ Mole.propTypes = {
     moleData: PropTypes.shape({
         moleType: PropTypes.oneOf(Object.keys(MOLE_TYPES).map((t) => MOLE_TYPES[t])),
         animValue: PropTypes.object,
+        wormHoleAnimValue: PropTypes.object,
         onBop: PropTypes.func
     })
 }
@@ -126,6 +150,7 @@ class Game extends Component {
     placeRandomMole() {
         const position = this.getRandomPosition()
         const animValue = new Animated.Value(0)
+        const wormHoleAnimValue = new Animated.Value(0)
 
         if (this.state.board[position.row][position.col] !== null) {
             // There is already something here, just skip this turn
@@ -133,7 +158,7 @@ class Game extends Component {
         }
 
         // After MOLE_DURATION_MS, remove the mole
-        const timeout = setTimeout(() => {
+        const removeTimeout = setTimeout(() => {
             // Animate back to 0
             const animValue = this.state.board[position.row][position.col].animValue
             Animated.timing(animValue, { toValue: 0 }).start(() => {
@@ -143,13 +168,17 @@ class Game extends Component {
             })
         }, MOLE_DURATION_MS)
 
+        // Animate the wormhole, then animate the mole coming out of it
+        Animated.timing(wormHoleAnimValue, { toValue: 1, duration: WORMHOLE_ANIMATION_MS }).start()
+        const animateMoleTimeout = setTimeout(Animated.spring(animValue, {
+            toValue: 1, friction: 3
+        }).start, MOLE_DELAY_MS)
+
         this.state.board[position.row][position.col] = {
             moleType: MOLE_TYPES.ALIEN,
-            animValue,
-            removeTimeout: timeout // TODO: Clear all timeout on unmount
+            animValue, wormHoleAnimValue,
+            timeouts: [removeTimeout, animateMoleTimeout] // TODO: Clear all timeout on unmount
         }
-        // Animate forwards to 1
-        Animated.spring(animValue, { toValue: 1, friction: 3 }).start()
     }
 
     step() {
@@ -162,7 +191,7 @@ class Game extends Component {
 
     onBop(row, col) {
         const mole = this.state.board[row][col]
-        clearTimeout(mole.removeTimeout)
+        mole.timeouts.forEach((t) => { clearTimeout(t) })
         // TODO: play some kind of bop animation here
         this.state.board[row][col] = null
         this.setState({
@@ -200,15 +229,8 @@ class Game extends Component {
                         <View style={ styles.row } key={ rowIndex }>
                             { row.map((col, colIndex) => (
                                 <View style={ styles.col } key={ colIndex }>
-                                    <Image source={ require('./images/wormhole.png') }
-                                        style={{
-                                            resizeMode: 'contain',
-                                            width: tileWidth,
-                                            height: tileHeight
-                                        }}>
-                                        { col && <Mole moleData={ col }
-                                                       onBop={ () => { this.onBop(rowIndex, colIndex) } } /> }
-                                    </Image>
+                                    { col && <Mole moleData={ col }
+                                                   onBop={ () => { this.onBop(rowIndex, colIndex) } } /> }
                                 </View>
                             )) }
                         </View>
@@ -240,7 +262,8 @@ const styles = StyleSheet.create({
     col: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        position: 'relative'
     },
     navBar: {
         alignItems: 'center',
