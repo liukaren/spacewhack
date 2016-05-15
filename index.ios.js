@@ -167,7 +167,8 @@ class Game extends Component {
     render() {
         const { tileWidth, tileHeight } = getTileSize()
         return (
-            <View>
+            <Image source={ require('./images/space.png') }
+                   style={ styles.background }>
                 <View style={ styles.navBar }>
                     <Text style={ styles.score }>
                         Score: 99
@@ -195,12 +196,20 @@ class Game extends Component {
                         </View>
                     )) }
                 </View>
-            </View>
+            </Image>
         )
     }
 }
 
 const styles = StyleSheet.create({
+    background: {
+        flex: 1,
+        resizeMode: 'cover',
+
+        // Ignore static dimensions
+        width: null,
+        height: null
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
