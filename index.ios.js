@@ -10,6 +10,7 @@ import {
     AppRegistry,
     Dimensions,
     Image,
+    StatusBar,
     StyleSheet,
     Text,
     TouchableWithoutFeedback,
@@ -156,6 +157,7 @@ class Game extends Component {
         const { height, width } = Dimensions.get('window')
         return (
             <View style={styles.container}>
+                <StatusBar hidden />
                 { this.state.board.map((row, rowIndex) => (
                     <View style={ styles.row } key={ rowIndex }>
                         { row.map((col, colIndex) => (
