@@ -21,6 +21,9 @@ const MOLE_TYPES = {
     ALIEN: 1
 }
 
+// TODO: make this based on screen size?
+const NAV_HEIGHT = 40
+
 // How long to wait before adding another mole. The actual value will fall between MIN and MAX.
 const ADD_INTERVAL_MIN_MS = 2000
 const ADD_INTERVAL_MAX_MS = 3000
@@ -29,17 +32,25 @@ const ADD_INTERVAL_RANGE_MS = ADD_INTERVAL_MAX_MS - ADD_INTERVAL_MIN_MS
 const MOLE_DURATION_MS = 2500 // How long a mole stays after it is added
 const MOLE_ANIMATION_MS = 500 // How long to animate entering / exiting
 
+function getTileSize() {
+    const { height, width } = Dimensions.get('window')
+    return {
+        tileWidth: width / NUM_COLS,
+        tileHeight: (height - NAV_HEIGHT) / NUM_ROWS
+    }
+}
+
 class Mole extends Component {
     render() {
         const image = require('./images/alien.png') // TODO: switch based on moleType
         const animValue = this.props.moleData.animValue
-        const { height, width } = Dimensions.get('window')
+        const { tileWidth, tileHeight } = getTileSize()
 
         return <TouchableWithoutFeedback onPress={ this.props.onBop }>
             <Animated.Image source={ image }
                 style={{
-                    width: width / NUM_COLS,
-                    height: height / NUM_ROWS,
+                    width: tileWidth,
+                    height: tileHeight,
                     resizeMode: 'contain',
                     // Gets narrower and taller when rising,
                     // then fatter and shorter when descending
@@ -154,28 +165,36 @@ class Game extends Component {
     }
 
     render() {
-        const { height, width } = Dimensions.get('window')
+        const { tileWidth, tileHeight } = getTileSize()
         return (
-            <View style={styles.container}>
-                <StatusBar hidden />
-                { this.state.board.map((row, rowIndex) => (
-                    <View style={ styles.row } key={ rowIndex }>
-                        { row.map((col, colIndex) => (
-                            <View style={ styles.col } key={ colIndex }>
-                                <Image source={ require('./images/heart.png') }
-                                    style={{
-                                        resizeMode: 'contain',
-                                        backgroundColor: 'green',
-                                        width: width / NUM_COLS,
-                                        height: height / NUM_ROWS
-                                    }}>
-                                    { col && <Mole moleData={ col }
-                                                   onBop={ () => { this.onBop(rowIndex, colIndex) } } /> }
-                                </Image>
-                            </View>
-                        )) }
-                    </View>
-                )) }
+            <View>
+                <View style={ styles.navBar }>
+                    <Text style={ styles.score }>
+                        Score: 99
+                    </Text>
+                    <Image source={ require('./images/pause.png') }
+                           style={ styles.pauseButton } />
+                </View>
+                <View style={styles.container}>
+                    <StatusBar hidden />
+                    { this.state.board.map((row, rowIndex) => (
+                        <View style={ styles.row } key={ rowIndex }>
+                            { row.map((col, colIndex) => (
+                                <View style={ styles.col } key={ colIndex }>
+                                    <Image source={ require('./images/heart.png') }
+                                        style={{
+                                            resizeMode: 'contain',
+                                            width: tileWidth,
+                                            height: tileHeight
+                                        }}>
+                                        { col && <Mole moleData={ col }
+                                                       onBop={ () => { this.onBop(rowIndex, colIndex) } } /> }
+                                    </Image>
+                                </View>
+                            )) }
+                        </View>
+                    )) }
+                </View>
             </View>
         )
     }
@@ -194,9 +213,21 @@ const styles = StyleSheet.create({
     col: {
         flex: 1,
         justifyContent: 'center',
+        alignItems: 'center'
+    },
+    navBar: {
         alignItems: 'center',
-
-        backgroundColor: 'pink'
+        backgroundColor: 'black',
+        flexDirection: 'row',
+        height: NAV_HEIGHT
+    },
+    score: {
+        color: 'white',
+        flex: 1
+    },
+    pauseButton: {
+        height: NAV_HEIGHT,
+        resizeMode: 'contain'
     }
 })
 
