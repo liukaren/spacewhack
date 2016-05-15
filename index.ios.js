@@ -103,6 +103,12 @@ class Game extends Component {
     placeRandomMole() {
         const position = this.getRandomPosition()
         const animValue = new Animated.Value(0)
+
+        if (this.state.board[position.row][position.col] !== null) {
+            // There is already something here, just skip this turn
+            return
+        }
+
         this.state.board[position.row][position.col] = {
             moleType: MOLE_TYPES.ALIEN,
             animValue
