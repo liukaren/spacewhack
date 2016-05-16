@@ -46,10 +46,23 @@ function getTileSize() {
 }
 
 class Mole extends Component {
+    componentWillMount() {
+        this.animValue = new Animated.Value(0)
+        this.wormHoleAnimValue = new Animated.Value(0)
+
+        // Animate the wormhole, then animate the mole coming out of it
+        Animated.timing(this.wormHoleAnimValue, { toValue: 1, duration: WORMHOLE_ANIMATION_MS }).start()
+        this.animateMoleTimeout = setTimeout(Animated.spring(this.animValue, {
+            toValue: 1, friction: 3
+        }).start, MOLE_DELAY_MS)
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.animateMoleTimeout)
+    }
+
     render() {
         const image = require('./images/alien.png') // TODO: switch based on moleType
-        const animValue = this.props.moleData.animValue
-        const wormHoleAnimValue = this.props.moleData.wormHoleAnimValue
         const { tileWidth, tileHeight } = getTileSize()
 
         return <TouchableWithoutFeedback onPress={ this.props.onBop }>
@@ -62,17 +75,17 @@ class Mole extends Component {
                                     resizeMode: 'contain',
                                     width: tileWidth,
                                     height: tileHeight,
-                                    opacity: wormHoleAnimValue.interpolate({
+                                    opacity: this.wormHoleAnimValue.interpolate({
                                         inputRange: [0, 0.8, 1],
                                         outputRange: [0, 1, 0]
                                     }),
                                     transform: [{
-                                        rotate: wormHoleAnimValue.interpolate({
+                                        rotate: this.wormHoleAnimValue.interpolate({
                                             inputRange: [0, 1],
                                             outputRange: ['0deg', '90deg']
                                         })
                                     }, {
-                                        scale: wormHoleAnimValue.interpolate({
+                                        scale: this.wormHoleAnimValue.interpolate({
                                             inputRange: [0, 1],
                                             outputRange: [0.5, 1]
                                         })
@@ -83,13 +96,13 @@ class Mole extends Component {
                                     width: tileWidth,
                                     height: tileHeight,
                                     resizeMode: 'contain',
-                                    opacity: animValue.interpolate({
+                                    opacity: this.animValue.interpolate({
                                         // Invisible until the start of the animation
                                         inputRange: [0.1, 1],
                                         outputRange: [0, 1]
                                     }),
                                     transform: [{
-                                        scale: animValue.interpolate({
+                                        scale: this.animValue.interpolate({
                                             inputRange: [0, 1],
                                             outputRange: [0.5, 0.8]
                                         })
@@ -102,8 +115,6 @@ class Mole extends Component {
 Mole.propTypes = {
     moleData: PropTypes.shape({
         moleType: PropTypes.oneOf(Object.keys(MOLE_TYPES).map((t) => MOLE_TYPES[t])),
-        animValue: PropTypes.object,
-        wormHoleAnimValue: PropTypes.object,
         onBop: PropTypes.func
     })
 }
@@ -149,8 +160,6 @@ class Game extends Component {
 
     placeRandomMole() {
         const position = this.getRandomPosition()
-        const animValue = new Animated.Value(0)
-        const wormHoleAnimValue = new Animated.Value(0)
 
         if (this.state.board[position.row][position.col] !== null) {
             // There is already something here, just skip this turn
@@ -159,25 +168,13 @@ class Game extends Component {
 
         // After MOLE_DURATION_MS, remove the mole
         const removeTimeout = setTimeout(() => {
-            // Animate back to 0
-            const animValue = this.state.board[position.row][position.col].animValue
-            Animated.timing(animValue, { toValue: 0 }).start(() => {
-                // When done with the animation, remove the mole
-                this.state.board[position.row][position.col] = null
-                this.setState({ board: this.state.board })
-            })
+            this.state.board[position.row][position.col] = null
+            this.setState({ board: this.state.board })
         }, MOLE_DURATION_MS)
-
-        // Animate the wormhole, then animate the mole coming out of it
-        Animated.timing(wormHoleAnimValue, { toValue: 1, duration: WORMHOLE_ANIMATION_MS }).start()
-        const animateMoleTimeout = setTimeout(Animated.spring(animValue, {
-            toValue: 1, friction: 3
-        }).start, MOLE_DELAY_MS)
 
         this.state.board[position.row][position.col] = {
             moleType: MOLE_TYPES.ALIEN,
-            animValue, wormHoleAnimValue,
-            timeouts: [removeTimeout, animateMoleTimeout] // TODO: Clear all timeout on unmount
+            removeTimeout // TODO: Clear all timeout on unmount
         }
     }
 
@@ -191,7 +188,7 @@ class Game extends Component {
 
     onBop(row, col) {
         const mole = this.state.board[row][col]
-        mole.timeouts.forEach((t) => { clearTimeout(t) })
+        clearTimeout(mole.removeTimeout)
         // TODO: play some kind of bop animation here
         this.state.board[row][col] = null
         this.setState({
