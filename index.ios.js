@@ -19,10 +19,15 @@ import {
 } from 'react-native'
 
 const MOLE_TYPES = [{
-    image: require('./images/alien.png'),
-    boppedImage: require('./images/alienBopped.png'),
+    image: require('./images/purple.png'),
+    boppedImage: require('./images/purpleBopped.png'),
     likelihoodWeight: 1,
     scoreValue: 10
+}, {
+    image: require('./images/yellow.png'),
+    boppedImage: require('./images/yellowBopped.png'),
+    likelihoodWeight: 1,
+    scoreValue: 20
 }, {
     image: require('./images/bunny.png'),
     boppedImage: require('./images/bunnyBopped.png'),
