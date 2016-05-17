@@ -18,11 +18,17 @@ import {
     View
 } from 'react-native'
 
-const MOLE_TYPES = {
-    ALIEN: {
-        scoreValue: 10
-    }
-}
+const MOLE_TYPES = [{
+    image: require('./images/alien.png'),
+    boppedImage: require('./images/alienBopped.png'),
+    likelihoodWeight: 1,
+    scoreValue: 10
+}, {
+    image: require('./images/bunny.png'),
+    boppedImage: require('./images/bunnyBopped.png'),
+    likelihoodWeight: 0.5,
+    scoreValue: 0
+}]
 
 // TODO: make this based on screen size?
 const NAV_HEIGHT = 40
@@ -93,9 +99,8 @@ class Mole extends Component {
     }
 
     render() {
-        // TODO: switch based on moleType
-        const image = require('./images/alien.png')
-        const boppedImage = require('./images/alienBopped.png')
+        const image = this.props.moleType.image
+        const boppedImage = this.props.moleType.boppedImage
         const { tileWidth, tileHeight } = getTileSize()
 
         // NOTE: For bopped elements, animValue is interpolating from 1 to 0
@@ -162,24 +167,25 @@ class Mole extends Component {
                                             }]
                                         }}>
                         </Animated.Image>
-                        <Animated.Text style={{
-                            position: 'absolute',
-                            bottom: tileHeight / 3,
-                            left: 0,
-                            right: 0,
-                            backgroundColor: 'transparent',
-                            color: 'white',
-                            fontFamily: 'American Typewriter',
-                            fontSize: 24,
-                            fontWeight: 'bold',
-                            textAlign: 'center',
-                            transform: [{
-                                translateY: this.animValue.interpolate({
-                                    inputRange: [0, 1],
-                                    outputRange: [-tileHeight / 3, 0]
-                                })
-                            }]
-                        }}>+{ this.props.moleType.scoreValue }</Animated.Text>
+                        { this.props.moleType.scoreValue > 0 &&
+                            <Animated.Text style={{
+                                position: 'absolute',
+                                bottom: tileHeight / 3,
+                                left: 0,
+                                right: 0,
+                                backgroundColor: 'transparent',
+                                color: 'white',
+                                fontFamily: 'American Typewriter',
+                                fontSize: 24,
+                                fontWeight: 'bold',
+                                textAlign: 'center',
+                                transform: [{
+                                    translateY: this.animValue.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [-tileHeight / 3, 0]
+                                    })
+                                }]
+                            }}>+{ this.props.moleType.scoreValue }</Animated.Text> }
                     </View> }
 
             </View>
@@ -187,7 +193,7 @@ class Mole extends Component {
     }
 }
 Mole.propTypes = {
-    moleType: PropTypes.oneOf(Object.keys(MOLE_TYPES).map((t) => MOLE_TYPES[t])).isRequired,
+    moleType: PropTypes.oneOf(MOLE_TYPES).isRequired,
     onBop: PropTypes.func.isRequired,
     removeMole: PropTypes.func.isRequired, // Call this when animations are done to fully remove
     removeTimeoutMs: PropTypes.number.isRequired
@@ -240,7 +246,23 @@ class Game extends Component {
             return
         }
 
-        this.state.board[position.row][position.col] = MOLE_TYPES.ALIEN
+        // TODO: Filter out types that are not available in this level.
+        // Pick a random mole based on its likelihood weight.
+        const totalWeight = MOLE_TYPES.reduce((sum, moleType) => (
+            moleType.likelihoodWeight + sum
+        ), 0)
+
+        let moleType
+        const randomNum = Math.random() * totalWeight
+        for (let i = 0, accruedWeight = 0; i < MOLE_TYPES.length; i++) {
+            accruedWeight += MOLE_TYPES[i].likelihoodWeight
+            if (randomNum < accruedWeight) {
+                moleType = MOLE_TYPES[i]
+                break
+            }
+        }
+
+        this.state.board[position.row][position.col] = moleType
     }
 
     step() {
