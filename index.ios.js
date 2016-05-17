@@ -39,11 +39,10 @@ const MOLE_TYPES = [{
 }]
 
 const MOLE_STATES = {
-    HIDDEN: 1,
-    VISIBLE: 2,
-    BOPPED: 3,
-    DEFEATED: 4,
-    EVADING: 5
+    DEFAULT: 1,
+    BOPPED: 2,
+    DEFEATED: 3,
+    EVADING: 4
 }
 
 // TODO: make this based on screen size?
@@ -57,7 +56,7 @@ const ADD_INTERVAL_RANGE_MS = ADD_INTERVAL_MAX_MS - ADD_INTERVAL_MIN_MS
 const MOLE_DURATION_MS = 2500 // How long a mole stays after it is added
 const MOLE_ANIMATION_MS = 500 // How long to animate entering / exiting
 const WORMHOLE_ANIMATION_MS = 1000 // How long to animate the wormhole opening and closing
-const MOLE_DELAY_MS = 300 // How long to wait between opening the wormhole and showing the mole
+const MOLE_DELAY_MS = 500 // How long to wait between opening the wormhole and showing the mole
 
 const MOLE_FULL_SCALE = 0.8
 const MOLE_SHRINK_SCALE = 0.5
@@ -81,7 +80,7 @@ const positionFill = {
 class Mole extends Component {
     constructor(props) {
         super(props)
-        this.state = { moleState: MOLE_STATES.HIDDEN, numBops: 0 }
+        this.state = { moleState: MOLE_STATES.DEFAULT, numBops: 0 }
     }
 
     componentWillMount() {
@@ -89,12 +88,15 @@ class Mole extends Component {
         this.wormHoleAnimValue = new Animated.Value(0)
         this.bopAnimValue = new Animated.Value(0)
 
-        // Animate the wormhole, then animate the mole coming out of it
-        Animated.timing(this.wormHoleAnimValue, { toValue: 1, duration: WORMHOLE_ANIMATION_MS }).start()
-        this.animateMoleTimeout = setTimeout(() => {
-            this.setState({ moleState: MOLE_STATES.VISIBLE })
-            Animated.spring(this.animValue, { toValue: 1, friction: 3 }).start()
-        }, MOLE_DELAY_MS)
+        // Animate the wormhole
+        Animated.timing(this.wormHoleAnimValue, {
+            toValue: 1, duration: WORMHOLE_ANIMATION_MS
+        }).start()
+        // Shortly after, animate the mole coming out of it
+        Animated.sequence([
+            Animated.delay(MOLE_DELAY_MS),
+            Animated.spring(this.animValue, { toValue: 1, friction: 3 })
+        ]).start()
 
         // After a timeout, animate the mole away and then call the parent to remove it
         this.removeTimeout = setTimeout(() => {
@@ -130,7 +132,7 @@ class Mole extends Component {
             // When the animation is finished, reset state
             this.setState({ moleState: MOLE_STATES.BOPPED, numBops })
             this.bopAnimation.start(() => {
-                this.setState({ moleState: MOLE_STATES.VISIBLE })
+                this.setState({ moleState: MOLE_STATES.DEFAULT })
             })
         }
     }
@@ -166,13 +168,18 @@ class Mole extends Component {
                                         })
                                     }]
                                }} />
-                { (this.state.moleState === MOLE_STATES.VISIBLE ||
+                { (this.state.moleState === MOLE_STATES.DEFAULT ||
                    this.state.moleState === MOLE_STATES.EVADING) &&
                     <Animated.Image source={ image }
                                     style={{
                                         width: tileWidth,
                                         height: tileHeight,
                                         resizeMode: 'contain',
+                                        opacity: this.animValue.interpolate({
+                                            // Invisible until animating
+                                            inputRange: [0, 0.1, 1],
+                                            outputRange: [0, 1, 1]
+                                        }),
                                         transform: [{
                                             scale: this.animValue.interpolate({
                                                 inputRange: [0, 1],
