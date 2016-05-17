@@ -21,19 +21,30 @@ import {
 const MOLE_TYPES = [{
     image: require('./images/purple.png'),
     boppedImage: require('./images/purpleBopped.png'),
+    bopsNeeded: 1,
     likelihoodWeight: 1,
     scoreValue: 10
 }, {
     image: require('./images/yellow.png'),
     boppedImage: require('./images/yellowBopped.png'),
+    bopsNeeded: 2,
     likelihoodWeight: 1,
-    scoreValue: 20
+    scoreValue: 25
 }, {
     image: require('./images/bunny.png'),
     boppedImage: require('./images/bunnyBopped.png'),
+    bopsNeeded: 1,
     likelihoodWeight: 0.5,
     scoreValue: 0
 }]
+
+const MOLE_STATES = {
+    HIDDEN: 1,
+    VISIBLE: 2,
+    BOPPED: 3,
+    DEFEATED: 4,
+    EVADING: 5
+}
 
 // TODO: make this based on screen size?
 const NAV_HEIGHT = 40
@@ -49,6 +60,7 @@ const WORMHOLE_ANIMATION_MS = 1000 // How long to animate the wormhole opening a
 const MOLE_DELAY_MS = 300 // How long to wait between opening the wormhole and showing the mole
 
 const MOLE_FULL_SCALE = 0.8
+const MOLE_SHRINK_SCALE = 0.5
 
 function getTileSize() {
     const { height, width } = Dimensions.get('window')
@@ -69,38 +81,58 @@ const positionFill = {
 class Mole extends Component {
     constructor(props) {
         super(props)
-        this.state = { isBopped: false }
+        this.state = { moleState: MOLE_STATES.HIDDEN, numBops: 0 }
     }
 
     componentWillMount() {
         this.animValue = new Animated.Value(0)
         this.wormHoleAnimValue = new Animated.Value(0)
+        this.bopAnimValue = new Animated.Value(0)
 
         // Animate the wormhole, then animate the mole coming out of it
         Animated.timing(this.wormHoleAnimValue, { toValue: 1, duration: WORMHOLE_ANIMATION_MS }).start()
-        this.animateMoleTimeout = setTimeout(Animated.spring(this.animValue, {
-            toValue: 1, friction: 3
-        }).start, MOLE_DELAY_MS)
+        this.animateMoleTimeout = setTimeout(() => {
+            this.setState({ moleState: MOLE_STATES.VISIBLE })
+            Animated.spring(this.animValue, { toValue: 1, friction: 3 }).start()
+        }, MOLE_DELAY_MS)
 
         // After a timeout, animate the mole away and then call the parent to remove it
         this.removeTimeout = setTimeout(() => {
-            Animated.spring(this.animValue, { toValue: 0, friction: 3 })
-                .start(this.props.removeMole)
+            this.setState({ moleState: MOLE_STATES.EVADING })
+            Animated.timing(this.animValue, { toValue: 0 }).start(this.props.onEvade)
         }, this.props.removeTimeoutMs)
     }
 
     componentWillUnmount() {
         clearTimeout(this.removeTimeout)
         clearTimeout(this.animateMoleTimeout)
+        if (this.bopAnimation) { this.bopAnimation.stop() }
     }
 
     onBop() {
-        // Clear the remove timeout because the bop will remove it
-        clearTimeout(this.removeTimeout)
+        // Do nothing if the mole is already leaving
+        if (this.state.moleState === MOLE_STATES.EVADING) { return; }
 
-        this.setState({ isBopped: true })
-        Animated.timing(this.animValue, { toValue: 0, easing: Easing.easeIn })
-            .start(this.props.onBop)
+        const numBops = this.state.numBops + 1
+        this.bopAnimValue.setValue(0)
+        this.bopAnimation = Animated.timing(this.bopAnimValue, {
+            toValue: 1, easing: Easing.easeIn
+        })
+
+        if (numBops >= this.props.moleType.bopsNeeded) {
+            // Clear the remove timeout because the bop will remove it
+            clearTimeout(this.removeTimeout)
+
+            // When the animation is finished, call the parent fn to remove the mole
+            this.setState({ moleState: MOLE_STATES.DEFEATED, numBops })
+            this.bopAnimation.start(this.props.onDefeat)
+        } else {
+            // When the animation is finished, reset state
+            this.setState({ moleState: MOLE_STATES.BOPPED, numBops })
+            this.bopAnimation.start(() => {
+                this.setState({ moleState: MOLE_STATES.VISIBLE })
+            })
+        }
     }
 
     render() {
@@ -108,7 +140,6 @@ class Mole extends Component {
         const boppedImage = this.props.moleType.boppedImage
         const { tileWidth, tileHeight } = getTileSize()
 
-        // NOTE: For bopped elements, animValue is interpolating from 1 to 0
         return <TouchableWithoutFeedback onPress={ this.onBop.bind(this) }>
             <View>
                 <Animated.Image source={ require('./images/wormhole.png') }
@@ -135,72 +166,76 @@ class Mole extends Component {
                                         })
                                     }]
                                }} />
-                { !this.state.isBopped &&
+                { (this.state.moleState === MOLE_STATES.VISIBLE ||
+                   this.state.moleState === MOLE_STATES.EVADING) &&
                     <Animated.Image source={ image }
                                     style={{
                                         width: tileWidth,
                                         height: tileHeight,
                                         resizeMode: 'contain',
-                                        opacity: this.animValue.interpolate({
-                                            // Invisible until the start of the animation
-                                            inputRange: [0.1, 1],
-                                            outputRange: [0, 1]
-                                        }),
                                         transform: [{
                                             scale: this.animValue.interpolate({
                                                 inputRange: [0, 1],
-                                                outputRange: [0.5, MOLE_FULL_SCALE]
+                                                outputRange: [0.1, MOLE_FULL_SCALE]
                                             })
                                         }]
                                     }} /> }
-                { this.state.isBopped &&
-                    <View>
-                        <Animated.Image source={ boppedImage }
-                                        style={{
-                                            width: tileWidth,
-                                            height: tileHeight,
-                                            resizeMode: 'contain',
-                                            opacity: this.animValue.interpolate({
+                { this.state.moleState === MOLE_STATES.BOPPED &&
+                    <Animated.Image source={ boppedImage }
+                                    style={{
+                                        width: tileWidth,
+                                        height: tileHeight,
+                                        resizeMode: 'contain',
+                                        transform: [{
+                                            scale: this.bopAnimValue.interpolate({
+                                                inputRange: [0, 0.5, 1],
+                                                outputRange: [MOLE_FULL_SCALE, MOLE_SHRINK_SCALE, MOLE_FULL_SCALE]
+                                            })
+                                        }]
+                                    }}>
+                    </Animated.Image> }
+                { this.state.moleState === MOLE_STATES.DEFEATED &&
+                    <Animated.Image source={ boppedImage }
+                                    style={{
+                                        width: tileWidth,
+                                        height: tileHeight,
+                                        resizeMode: 'contain',
+                                        transform: [{
+                                            scale: this.bopAnimValue.interpolate({
                                                 inputRange: [0, 1],
-                                                outputRange: [0, 1]
-                                            }),
-                                            transform: [{
-                                                scale: this.animValue.interpolate({
-                                                    inputRange: [0, 0.5, 1],
-                                                    outputRange: [0.5, 1.3, MOLE_FULL_SCALE]
-                                                })
-                                            }]
-                                        }}>
-                        </Animated.Image>
-                        { this.props.moleType.scoreValue > 0 &&
-                            <Animated.Text style={{
-                                position: 'absolute',
-                                bottom: tileHeight / 3,
-                                left: 0,
-                                right: 0,
-                                backgroundColor: 'transparent',
-                                color: 'white',
-                                fontFamily: 'American Typewriter',
-                                fontSize: 24,
-                                fontWeight: 'bold',
-                                textAlign: 'center',
-                                transform: [{
-                                    translateY: this.animValue.interpolate({
-                                        inputRange: [0, 1],
-                                        outputRange: [-tileHeight / 3, 0]
-                                    })
-                                }]
-                            }}>+{ this.props.moleType.scoreValue }</Animated.Text> }
-                    </View> }
-
+                                                outputRange: [MOLE_FULL_SCALE, 0]
+                                            })
+                                        }]
+                                    }}>
+                    </Animated.Image> }
+                { this.props.moleType.scoreValue > 0 &&
+                  this.state.moleState === MOLE_STATES.DEFEATED &&
+                    <Animated.Text style={{
+                        position: 'absolute',
+                        bottom: tileHeight / 3,
+                        left: 0,
+                        right: 0,
+                        backgroundColor: 'transparent',
+                        color: 'white',
+                        fontFamily: 'American Typewriter',
+                        fontSize: 24,
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        transform: [{
+                            translateY: this.bopAnimValue.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0, -tileHeight / 3]
+                            })
+                        }]
+                    }}>+{ this.props.moleType.scoreValue }</Animated.Text> }
             </View>
         </TouchableWithoutFeedback>
     }
 }
 Mole.propTypes = {
     moleType: PropTypes.oneOf(MOLE_TYPES).isRequired,
-    onBop: PropTypes.func.isRequired,
-    removeMole: PropTypes.func.isRequired, // Call this when animations are done to fully remove
+    onDefeat: PropTypes.func.isRequired,
+    onEvade: PropTypes.func.isRequired, // Call this when animations are done to fully remove
     removeTimeoutMs: PropTypes.number.isRequired
 }
 
@@ -278,13 +313,16 @@ class Game extends Component {
         this.stepTimeout = setTimeout(this.step.bind(this), timeUntilNextStep)
     }
 
-    removeMole(row, col) {
+    onEvade(row, col) {
         this.state.board[row][col] = null
         this.setState({ board: this.state.board })
     }
 
-    onBop(row, col) {
+    onDefeat(row, col) {
         const mole = this.state.board[row][col]
+        if (!mole) {
+            console.log("ROW AND COL ARE", row, col)
+        }
         this.state.board[row][col] = null
         this.setState({
             board: this.state.board,
@@ -322,8 +360,8 @@ class Game extends Component {
                             { row.map((col, colIndex) => (
                                 <View style={ styles.col } key={ colIndex }>
                                     { col && <Mole moleType={ col }
-                                                   onBop={ () => { this.onBop(rowIndex, colIndex) } }
-                                                   removeMole={ () => { this.removeMole(rowIndex, colIndex) } }
+                                                   onDefeat={ () => { this.onDefeat(rowIndex, colIndex) } }
+                                                   onEvade={ () => { this.onEvade(rowIndex, colIndex) } }
                                                    removeTimeoutMs={ MOLE_DURATION_MS } /> }
                                 </View>
                             )) }
