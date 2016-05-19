@@ -94,9 +94,6 @@ class Game extends Component {
 
     onDefeat(row, col) {
         const mole = this.state.board[row][col]
-        if (!mole) {
-            console.log("ROW AND COL ARE", row, col)
-        }
         this.state.board[row][col] = null
         this.setState({
             board: this.state.board,
