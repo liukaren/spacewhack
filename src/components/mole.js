@@ -71,7 +71,7 @@ export default class Mole extends Component {
     render() {
         const image = this.props.moleType.image
         const boppedImage = this.props.moleType.boppedImage
-        const { tileWidth, tileHeight } = Helpers.getTileSize()
+        const { tileWidth, tileHeight } = Helpers.getTileSize(this.props.level)
 
         return <TouchableWithoutFeedback onPress={ this.onBop.bind(this) }>
             <View>
@@ -171,6 +171,7 @@ export default class Mole extends Component {
     }
 }
 Mole.propTypes = {
+    level: PropTypes.number.isRequired,
     moleType: PropTypes.oneOf(Constants.MOLE_TYPES).isRequired,
     onDefeat: PropTypes.func.isRequired,
     onEvade: PropTypes.func.isRequired, // Call this when animations are done to fully remove

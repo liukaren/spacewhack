@@ -25,17 +25,20 @@ class Game extends Component {
     }
 
     resetGame() {
+        const level = 0
+
         // Initialize an empty board of `null`s
         const board = []
-        for (let rowIndex = 0; rowIndex < Constants.NUM_ROWS; rowIndex++) {
+        const { numCols, numRows } = Constants.LEVELS[level]
+        for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
             let row = []
-            for (let colIndex = 0; colIndex < Constants.NUM_COLS; colIndex++) {
+            for (let colIndex = 0; colIndex < numCols; colIndex++) {
                 row.push(null)
             }
             board.push(row)
         }
 
-        this.state = { board, score: 0 }
+        this.state = { board, score: 0, level }
         this.stepTimeout = null
     }
 
@@ -102,7 +105,7 @@ class Game extends Component {
     }
 
     render() {
-        const { tileWidth, tileHeight } = Helpers.getTileSize()
+        const { tileWidth, tileHeight } = Helpers.getTileSize(this.state.level)
 
         // Show lives with repeating hearts
         const numLives = 3 // TODO
@@ -131,6 +134,7 @@ class Game extends Component {
                             { row.map((col, colIndex) => (
                                 <View style={ styles.col } key={ colIndex }>
                                     { col && <Mole moleType={ col }
+                                                   level={ this.state.level }
                                                    onDefeat={ () => { this.onDefeat(rowIndex, colIndex) } }
                                                    onEvade={ () => { this.onEvade(rowIndex, colIndex) } }
                                                    removeTimeoutMs={ Constants.MOLE_DURATION_MS } /> }

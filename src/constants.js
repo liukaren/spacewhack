@@ -25,9 +25,10 @@ export const MOLE_STATES = {
     EVADING: 4
 }
 
-// TODO: Make these variable
-export const NUM_COLS = 3
-export const NUM_ROWS = 5
+export const LEVELS = [{
+    numCols: 3,
+    numRows: 5
+}]
 
 // -------- TIMING --------
 
