@@ -150,7 +150,8 @@ class Game extends Component {
 const styles = StyleSheet.create({
     background: {
         flex: 1,
-        resizeMode: 'cover',
+        backgroundColor: 'black',
+        resizeMode: 'contain',
 
         // Ignore static dimensions
         width: null,
