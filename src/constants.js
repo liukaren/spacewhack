@@ -8,19 +8,29 @@ export const MOLE_TYPES = [{
     image: require('../images/purple.png'),
     boppedImage: require('../images/purpleBopped.png'),
     bopsNeeded: 1,
+    lifeValue: 0,
     likelihoodWeight: 1,
     scoreValue: 10
 }, {
     image: require('../images/yellow.png'),
     boppedImage: require('../images/yellowBopped.png'),
     bopsNeeded: 2,
+    lifeValue: 0,
     likelihoodWeight: 1,
     scoreValue: 25
 }, {
     image: require('../images/bunny.png'),
     boppedImage: require('../images/bunnyBopped.png'),
     bopsNeeded: 1,
+    lifeValue: -1,
     likelihoodWeight: 0.5,
+    scoreValue: 0
+}, {
+    image: require('../images/heart.png'),
+    boppedImage: require('../images/heart.png'),
+    bopsNeeded: 1,
+    lifeValue: 1,
+    likelihoodWeight: 0.2,
     scoreValue: 0
 }]
 
@@ -35,6 +45,9 @@ export const LEVELS = [{
     numCols: 3,
     numRows: 5
 }]
+
+export const INITIAL_LIVES = 3
+export const MAX_LIVES = 4
 
 // -------- TIMING --------
 

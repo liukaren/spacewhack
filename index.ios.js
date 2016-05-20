@@ -40,7 +40,13 @@ class Game extends Component {
             board.push(row)
         }
 
-        this.state = { board, score: 0, level, gameState: Constants.GAME_STATES.INTRO }
+        this.state = {
+            board,
+            level,
+            lives: Constants.INITIAL_LIVES,
+            score: 0,
+            gameState: Constants.GAME_STATES.INTRO
+        }
         this.stepTimeout = null
     }
 
@@ -102,6 +108,7 @@ class Game extends Component {
         this.state.board[row][col] = null
         this.setState({
             board: this.state.board,
+            lives: Math.min(this.state.lives + mole.lifeValue, Constants.MAX_LIVES),
             score: this.state.score + mole.scoreValue
         })
     }
@@ -122,7 +129,7 @@ class Game extends Component {
             default:
                 return [
                     <NavBar key="nav-bar"
-                            numLives={ 3 }
+                            numLives={ this.state.lives }
                             onPause={ this.onPause.bind(this) }
                             score={ this.state.score } />,
                     <Board key="board"

@@ -22,11 +22,15 @@ export default class NavBar extends Component {
             <Text style={ styles.score }>
                 Score: { this.props.score }
             </Text>
-            { lifeEls }
-            <TouchableWithoutFeedback onPress={ this.props.onPause }>
-                <Image source={ require('../../images/pause.png') }
-                       style={ styles.pauseButton } />
-            </TouchableWithoutFeedback>
+            <View style={ styles.lifeContainer }>
+                { lifeEls }
+            </View>
+            <View style={ styles.pauseContainer }>
+                <TouchableWithoutFeedback onPress={ this.props.onPause }>
+                    <Image source={ require('../../images/pause.png') }
+                           style={ styles.pauseButton } />
+                </TouchableWithoutFeedback>
+            </View>
         </View>
     }
 }
@@ -41,11 +45,12 @@ const styles = StyleSheet.create({
     navBar: {
         alignItems: 'center',
         flexDirection: 'row',
+        flexWrap: 'nowrap',
+        justifyContent: 'flex-end',
         height: Constants.NAV_HEIGHT,
         padding: 10
     },
     score: {
-        backgroundColor: 'transparent',
         color: 'white',
         flex: 1,
         fontFamily: Constants.MAIN_FONT,
@@ -55,6 +60,15 @@ const styles = StyleSheet.create({
     pauseButton: {
         height: Constants.NAV_HEIGHT,
         resizeMode: 'contain'
+    },
+    pauseContainer: {
+        flex: 1,
+        alignItems: 'flex-end'
+    },
+    lifeContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        flexWrap: 'nowrap'
     },
     lifeImage: {
         height: Constants.NAV_HEIGHT,
