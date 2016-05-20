@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         color: 'white',
         flex: 1,
-        fontFamily: 'Avenir Next',
+        fontFamily: Constants.MAIN_FONT,
         fontSize: 20,
         fontWeight: 'bold'
     },

@@ -17,6 +17,7 @@ import * as Constants from './src/constants.js'
 import * as Helpers from './src/helpers.js'
 import Board from './src/components/board.js'
 import NavBar from './src/components/navbar.js'
+import PauseScreen from './src/components/pauseScreen.js'
 
 class Game extends Component {
     constructor(props) {
@@ -39,7 +40,7 @@ class Game extends Component {
             board.push(row)
         }
 
-        this.state = { board, score: 0, level }
+        this.state = { board, score: 0, level, gameState: Constants.GAME_STATES.INTRO }
         this.stepTimeout = null
     }
 
@@ -106,7 +107,31 @@ class Game extends Component {
     }
 
     onPause() {
-        console.log('paused!')
+        // TODO: actually cancel all animations and timeouts
+        this.setState({ gameState: Constants.GAME_STATES.PAUSED })
+    }
+
+    onResume() {
+        this.setState({ gameState: Constants.GAME_STATES.IN_GAME })
+    }
+
+    getMainEl() {
+        switch(this.state.gameState) {
+            case Constants.GAME_STATES.PAUSED:
+                return <PauseScreen onResume={ this.onResume.bind(this) } />
+            default:
+                return [
+                    <NavBar key="nav-bar"
+                            numLives={ 3 }
+                            onPause={ this.onPause.bind(this) }
+                            score={ this.state.score } />,
+                    <Board key="board"
+                           board={ this.state.board }
+                           level={ this.state.level }
+                           onDefeat={ this.onDefeat.bind(this) }
+                           onEvade={ this.onEvade.bind(this) } />
+                ]
+        }
     }
 
     render() {
@@ -116,13 +141,7 @@ class Game extends Component {
             <Image source={ require('./images/space.png') }
                    style={ styles.background }>
                 <StatusBar hidden />
-                <NavBar numLives={ 3 }
-                        onPause={ this.onPause.bind(this) }
-                        score={ this.state.score } />
-                <Board board={ this.state.board }
-                       level={ this.state.level }
-                       onDefeat={ this.onDefeat.bind(this) }
-                       onEvade={ this.onEvade.bind(this) } />
+                { this.getMainEl() }
             </Image>
         )
     }

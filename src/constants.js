@@ -1,3 +1,9 @@
+export const GAME_STATES = {
+    INTRO: 1,
+    IN_GAME: 2,
+    PAUSE: 3
+}
+
 export const MOLE_TYPES = [{
     image: require('../images/purple.png'),
     boppedImage: require('../images/purpleBopped.png'),
@@ -44,5 +50,7 @@ export const MOLE_DELAY_MS = 500 // How long to wait between opening the wormhol
 
 // -------- DRAWING --------
 
+export const GUTTER = 10 // TODO: make this responsive?
+export const MAIN_FONT = 'Avenir Next'
 export const MOLE_SHRINK_SCALE = 0.5
-export const NAV_HEIGHT = 40 // TODO: make this based on screen size?
+export const NAV_HEIGHT = 40 // TODO: make this responsive?
