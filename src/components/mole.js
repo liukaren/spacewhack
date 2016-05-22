@@ -6,12 +6,21 @@ import {
     View
 } from 'react-native'
 import * as Constants from '../constants.js'
+import { MOLE_STATES } from '../constants.js'
 import * as Helpers from '../helpers.js'
+
+// TODO: Why is this necessary? Values seem to be set incorrectly without this range
+function interpolateAnimationHack(animValue) {
+    return animValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0.01, 1]
+    })
+}
 
 export default class Mole extends Component {
     constructor(props) {
         super(props)
-        this.state = { moleState: Constants.MOLE_STATES.DEFAULT, numBops: 0 }
+        this.state = { moleState: MOLE_STATES.DEFAULT, numBops: 0 }
     }
 
     componentWillMount() {
@@ -31,7 +40,7 @@ export default class Mole extends Component {
 
         // After a timeout, animate the mole away and then call the parent to remove it
         this.removeTimeout = setTimeout(() => {
-            this.setState({ moleState: Constants.MOLE_STATES.EVADING })
+            this.setState({ moleState: MOLE_STATES.EVADING })
             Animated.timing(this.animValue, { toValue: 0 }).start(this.props.onEvade)
         }, this.props.removeTimeoutMs)
     }
@@ -44,7 +53,7 @@ export default class Mole extends Component {
 
     onBop() {
         // Do nothing if the mole is already leaving
-        if (this.state.moleState === Constants.MOLE_STATES.EVADING) { return; }
+        if (this.state.moleState === MOLE_STATES.EVADING) { return; }
 
         const numBops = this.state.numBops + 1
         this.bopAnimValue.setValue(0)
@@ -57,13 +66,15 @@ export default class Mole extends Component {
             clearTimeout(this.removeTimeout)
 
             // When the animation is finished, call the parent fn to remove the mole
-            this.setState({ moleState: Constants.MOLE_STATES.DEFEATED, numBops })
-            this.bopAnimation.start(this.props.onDefeat)
+            this.setState({ moleState: MOLE_STATES.DEFEATED, numBops }, () => {
+                this.bopAnimation.start(this.props.onDefeat)
+            })
         } else {
             // When the animation is finished, reset state
-            this.setState({ moleState: Constants.MOLE_STATES.BOPPED, numBops })
-            this.bopAnimation.start(() => {
-                this.setState({ moleState: Constants.MOLE_STATES.DEFAULT })
+            this.setState({ moleState: MOLE_STATES.BOPPED, numBops }, () => {
+                this.bopAnimation.start(() => {
+                    this.setState({ moleState: MOLE_STATES.DEFAULT })
+                })
             })
         }
     }
@@ -72,17 +83,24 @@ export default class Mole extends Component {
         const image = this.props.moleType.image
         const boppedImage = this.props.moleType.boppedImage
         const { tileWidth, tileHeight } = Helpers.getTileSize(this.props.level)
+        const moleState = this.state.moleState
 
+        const imageStyle = {
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+
+            width: tileWidth,
+            height: tileHeight,
+            resizeMode: 'contain'
+        }
+
+        // NOTE: All images are rendered with an opacity of 0 rather than
+        // unrendered so there is no flicker when switching between images.
         return <TouchableWithoutFeedback onPress={ this.onBop.bind(this) }>
-            <View>
+            <View style={{ width: tileWidth, height: tileHeight }}>
                 <Animated.Image source={ require('../../images/wormhole.png') }
-                                style={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    left: 0,
-                                    resizeMode: 'contain',
-                                    width: tileWidth,
-                                    height: tileHeight,
+                                style={ Object.assign({}, imageStyle, {
                                     opacity: this.wormHoleAnimValue.interpolate({
                                         inputRange: [0, 0.8, 1],
                                         outputRange: [0, 1, 0]
@@ -98,56 +116,39 @@ export default class Mole extends Component {
                                             outputRange: [0.5, 1]
                                         })
                                     }]
-                               }} />
-                { (this.state.moleState === Constants.MOLE_STATES.DEFAULT ||
-                   this.state.moleState === Constants.MOLE_STATES.EVADING) &&
-                    <Animated.Image source={ image }
-                                    style={{
-                                        width: tileWidth,
-                                        height: tileHeight,
-                                        resizeMode: 'contain',
-                                        opacity: this.animValue.interpolate({
-                                            // Invisible until animating
-                                            inputRange: [0, 0.1, 1],
-                                            outputRange: [0, 1, 1]
-                                        }),
-                                        transform: [{
-                                            scale: this.animValue.interpolate({
-                                                inputRange: [0, 1],
-                                                outputRange: [0.1, 1]
-                                            })
-                                        }]
-                                    }} /> }
-                { this.state.moleState === Constants.MOLE_STATES.BOPPED &&
-                    <Animated.Image source={ boppedImage }
-                                    style={{
-                                        width: tileWidth,
-                                        height: tileHeight,
-                                        resizeMode: 'contain',
-                                        transform: [{
-                                            scale: this.bopAnimValue.interpolate({
-                                                inputRange: [0, 0.5, 1],
-                                                outputRange: [1, Constants.MOLE_SHRINK_SCALE, 1]
-                                            })
-                                        }]
-                                    }}>
-                    </Animated.Image> }
-                { this.state.moleState === Constants.MOLE_STATES.DEFEATED &&
-                    <Animated.Image source={ boppedImage }
-                                    style={{
-                                        width: tileWidth,
-                                        height: tileHeight,
-                                        resizeMode: 'contain',
-                                        transform: [{
-                                            scale: this.bopAnimValue.interpolate({
-                                                inputRange: [0, 1],
-                                                outputRange: [1, 0]
-                                            })
-                                        }]
-                                    }}>
-                    </Animated.Image> }
+                               })} />
+                <Animated.Image source={ image }
+                                style={ Object.assign({}, imageStyle, {
+                                    opacity: (
+                                        moleState === MOLE_STATES.DEFAULT ||
+                                        moleState === MOLE_STATES.EVADING) ?
+                                            interpolateAnimationHack(this.animValue) : 0,
+                                    transform: [{
+                                        scale: interpolateAnimationHack(this.animValue)
+                                    }]
+                                })} />
+                <Animated.Image source={ boppedImage }
+                                style={ Object.assign({}, imageStyle, {
+                                    opacity: moleState === MOLE_STATES.BOPPED ? 1 : 0,
+                                    transform: [{
+                                        scale: this.bopAnimValue.interpolate({
+                                            inputRange: [0, 0.5, 1],
+                                            outputRange: [1, Constants.MOLE_SHRINK_SCALE, 1]
+                                        })
+                                    }]
+                                })} />
+                <Animated.Image source={ boppedImage }
+                                style={ Object.assign({}, imageStyle, {
+                                    opacity: moleState === MOLE_STATES.DEFEATED ? 1 : 0,
+                                    transform: [{
+                                        scale: this.bopAnimValue.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [1, 0]
+                                        })
+                                    }]
+                                })} />
                 { this.props.moleType.scoreValue > 0 &&
-                  this.state.moleState === Constants.MOLE_STATES.DEFEATED &&
+                  this.state.moleState === MOLE_STATES.DEFEATED &&
                     <Animated.Text style={{
                         position: 'absolute',
                         bottom: tileHeight / 3,
@@ -170,6 +171,7 @@ export default class Mole extends Component {
         </TouchableWithoutFeedback>
     }
 }
+
 Mole.propTypes = {
     level: PropTypes.number.isRequired,
     moleType: PropTypes.oneOf(Constants.MOLE_TYPES).isRequired,
