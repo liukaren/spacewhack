@@ -52,8 +52,9 @@ export default class Mole extends Component {
     }
 
     onBop() {
-        // Do nothing if the mole is already leaving
-        if (this.state.moleState === MOLE_STATES.EVADING) { return; }
+        // Do nothing if the mole is already defeated or leaving
+        if (this.state.moleState === MOLE_STATES.DEFEATED ||
+            this.state.moleState === MOLE_STATES.EVADING) { return; }
 
         // Play a sound
         Constants.SOUND_BOP.setCurrentTime(0)
