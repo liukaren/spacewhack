@@ -9,7 +9,7 @@ import styles from './styles.js'
 export default class PauseScreen extends Component {
     render() {
         return <View style={ styles.screenBg }>
-            <Text style={ styles.text }>
+            <Text style={ styles.title }>
                 PAUSED
             </Text>
 

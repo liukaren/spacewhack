@@ -17,6 +17,7 @@ import * as Constants from './src/constants.js'
 import * as Helpers from './src/helpers.js'
 import Board from './src/components/board.js'
 import NavBar from './src/components/navbar.js'
+import LevelScreen from './src/components/screens/level.js'
 import PauseScreen from './src/components/screens/pause.js'
 
 class Game extends Component {
@@ -50,6 +51,11 @@ class Game extends Component {
         this.stepTimeout = null
     }
 
+    startGame() {
+        this.setState({ gameState: Constants.GAME_STATES.IN_GAME })
+        this.step()
+    }
+
     getRandomPosition() {
         const numRows = this.state.board.length
         const numCols = this.state.board[0].length
@@ -57,10 +63,6 @@ class Game extends Component {
             row: Math.floor(Math.random() * numRows),
             col: Math.floor(Math.random() * numCols)
         }
-    }
-
-    componentDidMount() {
-        this.step()
     }
 
     placeRandomMole() {
@@ -124,6 +126,9 @@ class Game extends Component {
 
     getMainEl() {
         switch(this.state.gameState) {
+            case Constants.GAME_STATES.INTRO:
+                return <LevelScreen level={ this.state.level }
+                                    onStart={ this.startGame.bind(this) } />
             case Constants.GAME_STATES.PAUSED:
                 return <PauseScreen onResume={ this.onResume.bind(this) } />
             default:

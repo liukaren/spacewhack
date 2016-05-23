@@ -1,5 +1,9 @@
 import Sound from 'react-native-sound'
 
+// Subject to change
+export const PLANET_NAME = 'Planet BunBun'
+export const SHIP_NAME = 'Starship Carrot'
+
 export const GAME_STATES = {
     INTRO: 1,
     IN_GAME: 2,

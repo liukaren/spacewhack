@@ -14,11 +14,17 @@ export default styles = StyleSheet.create({
 
         margin: Constants.GUTTER
     },
-    text: {
+    title: {
         color: 'white',
         fontFamily: Constants.MAIN_FONT,
         fontSize: 30,
         fontWeight: 'bold',
+        margin: Constants.GUTTER
+    },
+    text: {
+        color: 'white',
+        fontFamily: Constants.MAIN_FONT,
+        fontSize: 20,
         margin: Constants.GUTTER
     },
     button: {
@@ -27,7 +33,14 @@ export default styles = StyleSheet.create({
         borderColor: 'white',
         borderRadius: 5,
         borderWidth: 1,
+        margin: Constants.GUTTER,
         padding: Constants.GUTTER,
         textAlign: 'center'
+    },
+    previewImage: {
+        width: 100, // TODO
+        height: 100,
+        margin: Constants.GUTTER,
+        resizeMode: 'contain'
     }
 })
