@@ -17,7 +17,7 @@ import * as Constants from './src/constants.js'
 import * as Helpers from './src/helpers.js'
 import Board from './src/components/board.js'
 import NavBar from './src/components/navbar.js'
-import PauseScreen from './src/components/pauseScreen.js'
+import PauseScreen from './src/components/screens/pause.js'
 
 class Game extends Component {
     constructor(props) {
