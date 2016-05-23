@@ -1,3 +1,5 @@
+import Sound from 'react-native-sound'
+
 export const GAME_STATES = {
     INTRO: 1,
     IN_GAME: 2,
@@ -67,3 +69,8 @@ export const GUTTER = 10 // TODO: make this responsive?
 export const MAIN_FONT = 'Avenir Next'
 export const MOLE_SHRINK_SCALE = 0.5
 export const NAV_HEIGHT = 40 // TODO: make this responsive?
+
+// -------- SOUNDS --------
+export const SOUND_BOP = new Sound('pop.mp3', Sound.MAIN_BUNDLE, (error) => {
+    if (error) { console.log('failed to load the sound', error) }
+})

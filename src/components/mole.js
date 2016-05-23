@@ -55,6 +55,10 @@ export default class Mole extends Component {
         // Do nothing if the mole is already leaving
         if (this.state.moleState === MOLE_STATES.EVADING) { return; }
 
+        // Play a sound
+        Constants.SOUND_BOP.setCurrentTime(0)
+        Constants.SOUND_BOP.play()
+
         const numBops = this.state.numBops + 1
         this.bopAnimValue.setValue(0)
         this.bopAnimation = Animated.timing(this.bopAnimValue, {
