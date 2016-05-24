@@ -13,48 +13,38 @@ import {
     Text,
     View
 } from 'react-native'
+
 import * as Constants from './src/constants.js'
 import * as Helpers from './src/helpers.js'
 import Timer from './src/timer.js'
+
 import Board from './src/components/board.js'
 import NavBar from './src/components/navbar.js'
 import LevelScreen from './src/components/screens/level.js'
 import PauseScreen from './src/components/screens/pause.js'
 
+import Actions from './src/flux/actions.js'
+import { dispatch } from './src/flux/dispatcher.js'
+import GameStore from './src/flux/store.js'
+
 class Game extends Component {
     constructor(props) {
         super(props)
+        this.state = GameStore.getState()
+    }
 
-        this.state = Object.assign({}, this.getResetState(), {
-            isSoundOn: true
+    componentDidMount() {
+        this.fluxListener = GameStore.addListener(() => {
+            this.setState(GameStore.getState())
         })
     }
 
-    getResetState() {
-        const level = 0
-
-        // Initialize an empty board of `null`s
-        const board = []
-        const { numCols, numRows } = Constants.LEVELS[level]
-        for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
-            let row = []
-            for (let colIndex = 0; colIndex < numCols; colIndex++) {
-                row.push(null)
-            }
-            board.push(row)
-        }
-
-        return {
-            board,
-            level,
-            lives: Constants.INITIAL_LIVES,
-            score: 0,
-            gameState: Constants.GAME_STATES.INTRO
-        }
+    componentWillUnmount() {
+        this.fluxListener.remove()
     }
 
     startGame() {
-        this.setState({ gameState: Constants.GAME_STATES.IN_GAME })
+        dispatch({ type: Actions.START_GAME })
         this.step()
     }
 
@@ -91,12 +81,11 @@ class Game extends Component {
             }
         }
 
-        this.state.board[position.row][position.col] = moleType
+        dispatch({ type: Actions.PLACE_MOLE, row: position.row, col: position.col, moleType })
     }
 
     step() {
         this.placeRandomMole()
-        this.setState({ board: this.state.board })
 
         const timeUntilNextStep = (Math.random() * Constants.ADD_INTERVAL_RANGE_MS) +
             Constants.ADD_INTERVAL_MIN_MS
@@ -104,27 +93,26 @@ class Game extends Component {
     }
 
     onEvade(row, col) {
-        this.state.board[row][col] = null
-        this.setState({ board: this.state.board })
+        dispatch({ type: Actions.CLEAR_MOLE, row, col })
     }
 
     onDefeat(row, col) {
         const mole = this.state.board[row][col]
-        this.state.board[row][col] = null
-        this.setState({
-            board: this.state.board,
-            lives: Math.min(this.state.lives + mole.lifeValue, Constants.MAX_LIVES),
-            score: this.state.score + mole.scoreValue
+        dispatch({
+            type: Actions.CLEAR_MOLE,
+            row, col,
+            lifeValue: mole.lifeValue,
+            scoreValue: mole.scoreValue
         })
     }
 
     onPause() {
-        this.setState({ gameState: Constants.GAME_STATES.PAUSED })
+        dispatch({ type: Actions.PAUSE_GAME })
         this.stepTimeout.pause()
     }
 
     onResume() {
-        this.setState({ gameState: Constants.GAME_STATES.IN_GAME })
+        dispatch({ type: Actions.RESUME_GAME })
         this.stepTimeout.resume()
     }
 
@@ -155,9 +143,9 @@ class Game extends Component {
                     <PauseScreen key="pause-screen"
                                  isSoundOn={ this.state.isSoundOn }
                                  onResume={ this.onResume.bind(this) }
-                                 onToggleSound={ () => {
-                                     this.setState({ isSoundOn: !this.state.isSoundOn })
-                                 }} />
+                                 onToggleSound={ () => dispatch({
+                                     type: Actions.TOGGLE_SOUND
+                                 }) } />
                 ])
             default:
                 return gameElements
