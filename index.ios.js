@@ -13,6 +13,7 @@ import {
     Text,
     View
 } from 'react-native'
+import { Container } from 'flux/utils'
 
 import * as Constants from './src/constants.js'
 import * as Helpers from './src/helpers.js'
@@ -28,19 +29,12 @@ import { dispatch } from './src/flux/dispatcher.js'
 import GameStore from './src/flux/store.js'
 
 class Game extends Component {
-    constructor(props) {
-        super(props)
-        this.state = GameStore.getState()
+    static getStores() {
+        return [GameStore]
     }
 
-    componentDidMount() {
-        this.fluxListener = GameStore.addListener(() => {
-            this.setState(GameStore.getState())
-        })
-    }
-
-    componentWillUnmount() {
-        this.fluxListener.remove()
+    static calculateState() {
+        return GameStore.getState()
     }
 
     startGame() {
@@ -138,6 +132,8 @@ class Game extends Component {
     }
 }
 
+const fluxContainer = Container.create(Game)
+
 const styles = StyleSheet.create({
     background: {
         flex: 1,
@@ -150,4 +146,4 @@ const styles = StyleSheet.create({
     }
 })
 
-AppRegistry.registerComponent('spacewhack', () => Game)
+AppRegistry.registerComponent('spacewhack', () => fluxContainer)
