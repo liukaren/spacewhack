@@ -26,7 +26,8 @@ function getResetState() {
         level,
         lives: Constants.INITIAL_LIVES,
         score: 0,
-        gameState: Constants.GAME_STATES.INTRO
+        gameState: Constants.GAME_STATES.INTRO,
+        stepTimeout: null
     }
 }
 
@@ -45,6 +46,9 @@ class GameStore extends ReduceStore {
             case Actions.RESUME_GAME:
                 state.stepTimeout.resume()
                 return combineState(state, { gameState: Constants.GAME_STATES.IN_GAME })
+            case Actions.QUIT_GAME:
+                state.stepTimeout.pause()
+                return combineState(state, getResetState())
             case Actions.PLACE_MOLE:
                 // TODO: Stop mutating the state's board
                 state.board[action.row][action.col] = action.moleType

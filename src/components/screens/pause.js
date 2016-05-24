@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import {
+    Alert,
     Image,
     Text,
     TouchableHighlight,
@@ -13,6 +14,15 @@ const IMG_SOUND_ON = require('../../../images/soundOn.png')
 const IMG_SOUND_OFF = require('../../../images/soundOff.png')
 
 export default class PauseScreen extends Component {
+    confirmQuit() {
+        Alert.alert(
+            'Abandon ship?', null, [
+                { text: 'Cancel', onPress: () => {}, style: 'cancel'},
+                { text: 'Quit', onPress: () => dispatch({ type: Actions.QUIT_GAME }), style: 'destructive' }
+            ]
+        )
+    }
+
     render() {
         return <View style={ [styles.screenBg, styles.screenBgOverlay] }>
             <Text style={ styles.title }>
@@ -25,6 +35,10 @@ export default class PauseScreen extends Component {
 
             <TouchableHighlight onPress={ () => dispatch({ type: Actions.RESUME_GAME }) }>
                 <Text style={ styles.button }>Resume</Text>
+            </TouchableHighlight>
+
+            <TouchableHighlight onPress={ this.confirmQuit }>
+                <Text style={ styles.button }>Quit</Text>
             </TouchableHighlight>
         </View>
     }
