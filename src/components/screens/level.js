@@ -26,7 +26,7 @@ export default class LevelScreen extends Component {
             </Text>
 
             <TouchableHighlight onPress={ this.props.onStart }>
-                <Text style={ styles.button }>LAUNCH</Text>
+                <Text style={ styles.button }>Launch</Text>
             </TouchableHighlight>
         </View>
     }

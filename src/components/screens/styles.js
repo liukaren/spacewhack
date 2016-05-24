@@ -43,10 +43,11 @@ export default StyleSheet.create({
     },
     button: {
         color: 'white',
-        backgroundColor: 'gray',
         borderColor: 'white',
-        borderRadius: 5,
         borderWidth: 1,
+        fontFamily: Constants.MAIN_FONT,
+        fontSize: 20,
+        fontWeight: '700',
         margin: Constants.GUTTER,
         padding: Constants.GUTTER,
         textAlign: 'center'
