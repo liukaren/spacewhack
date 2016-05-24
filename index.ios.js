@@ -128,14 +128,15 @@ class Game extends Component {
     }
 
     getMainEl() {
+        const isPaused = this.state.gameState === Constants.GAME_STATES.PAUSED
         const gameElements = [
             <NavBar key="nav-bar"
                     numLives={ this.state.lives }
-                    onPause={ this.onPause.bind(this) }
+                    onTogglePause={ () => isPaused ? this.onResume() : this.onPause() }
                     score={ this.state.score } />,
             <Board key="board"
                    board={ this.state.board }
-                   isPaused={ this.state.gameState === Constants.GAME_STATES.PAUSED }
+                   isPaused={ isPaused }
                    level={ this.state.level }
                    onDefeat={ this.onDefeat.bind(this) }
                    onEvade={ this.onEvade.bind(this) } />

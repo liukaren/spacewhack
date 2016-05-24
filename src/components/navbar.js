@@ -26,7 +26,7 @@ export default class NavBar extends Component {
                 { lifeEls }
             </View>
             <View style={ styles.pauseContainer }>
-                <TouchableWithoutFeedback onPress={ this.props.onPause }>
+                <TouchableWithoutFeedback onPress={ this.props.onTogglePause }>
                     <Image source={ require('../../images/pause.png') }
                            style={ styles.pauseButton } />
                 </TouchableWithoutFeedback>
@@ -37,7 +37,7 @@ export default class NavBar extends Component {
 
 NavBar.propTypes = {
     numLives: PropTypes.number.isRequired,
-    onPause: PropTypes.func.isRequired,
+    onTogglePause: PropTypes.func.isRequired,
     score: PropTypes.number.isRequired,
 }
 
