@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native'
 import * as Constants from '../../constants.js'
 
-export default styles = StyleSheet.create({
+export default StyleSheet.create({
     screenBg: {
         alignItems: 'center',
         justifyContent: 'center',
