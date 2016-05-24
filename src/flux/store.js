@@ -26,7 +26,7 @@ function getResetState() {
         level,
         lives: Constants.INITIAL_LIVES,
         score: 0,
-        gameState: Constants.GAME_STATES.INTRO,
+        gameState: Constants.GAME_STATES.SPLASH_SCREEN,
         stepTimeout: null
     }
 }
@@ -39,16 +39,18 @@ class GameStore extends ReduceStore {
     reduce(state, action) {
         switch(action.type) {
             case Actions.START_GAME:
-                return combineState(state, { gameState: Constants.GAME_STATES.IN_GAME })
+                return combineState(state, { gameState: Constants.GAME_STATES.LEVEL_SCREEN })
             case Actions.PAUSE_GAME:
                 state.stepTimeout.pause()
-                return combineState(state, { gameState: Constants.GAME_STATES.PAUSED })
+                return combineState(state, { gameState: Constants.GAME_STATES.PAUSE_SCREEN })
             case Actions.RESUME_GAME:
                 state.stepTimeout.resume()
                 return combineState(state, { gameState: Constants.GAME_STATES.IN_GAME })
             case Actions.QUIT_GAME:
                 state.stepTimeout.pause()
                 return combineState(state, getResetState())
+            case Actions.START_LEVEL:
+                return combineState(state, { gameState: Constants.GAME_STATES.IN_GAME })
             case Actions.PLACE_MOLE:
                 // TODO: Stop mutating the state's board
                 state.board[action.row][action.col] = action.moleType

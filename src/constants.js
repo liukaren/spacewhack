@@ -5,9 +5,10 @@ export const PLANET_NAME = 'Planet BunBun'
 export const SHIP_NAME = 'Starship Carrot'
 
 export const GAME_STATES = {
-    INTRO: 1,
-    IN_GAME: 2,
-    PAUSE: 3
+    SPLASH_SCREEN: 1,
+    LEVEL_SCREEN: 2,
+    IN_GAME: 3,
+    PAUSE_SCREEN: 4
 }
 
 export const MOLE_TYPES = [{

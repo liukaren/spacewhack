@@ -23,6 +23,7 @@ import Board from './src/components/board.js'
 import NavBar from './src/components/navbar.js'
 import LevelScreen from './src/components/screens/level.js'
 import PauseScreen from './src/components/screens/pause.js'
+import SplashScreen from './src/components/screens/splash.js'
 
 import Actions from './src/flux/actions.js'
 import { dispatch } from './src/flux/dispatcher.js'
@@ -37,8 +38,8 @@ class Game extends Component {
         return GameStore.getState()
     }
 
-    startGame() {
-        dispatch({ type: Actions.START_GAME })
+    startLevel() {
+        dispatch({ type: Actions.START_LEVEL })
         this.step()
     }
 
@@ -90,7 +91,7 @@ class Game extends Component {
 
 
     getMainEl() {
-        const isPaused = this.state.gameState === Constants.GAME_STATES.PAUSED
+        const isPaused = this.state.gameState === Constants.GAME_STATES.PAUSE_SCREEN
         const gameElements = [
             <NavBar key="nav-bar"
                     isPaused={ isPaused }
@@ -104,10 +105,12 @@ class Game extends Component {
         ]
 
         switch(this.state.gameState) {
-            case Constants.GAME_STATES.INTRO:
+            case Constants.GAME_STATES.SPLASH_SCREEN:
+                return <SplashScreen />
+            case Constants.GAME_STATES.LEVEL_SCREEN:
                 return <LevelScreen level={ this.state.level }
-                                    onStart={ this.startGame.bind(this) } />
-            case Constants.GAME_STATES.PAUSED:
+                                    onStart={ this.startLevel.bind(this) } />
+            case Constants.GAME_STATES.PAUSE_SCREEN:
                 // Keep all the game elements so we don't re-animate unnecessarily.
                 // Just add a pause overlay.
                 return gameElements.concat([

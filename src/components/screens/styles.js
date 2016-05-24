@@ -7,7 +7,7 @@ export default StyleSheet.create({
         justifyContent: 'center',
 
         position: 'absolute',
-        top: Constants.NAV_HEIGHT,
+        top: 0,
         left: 0,
         right: 0,
         bottom: 0,
@@ -19,7 +19,14 @@ export default StyleSheet.create({
         margin: Constants.GUTTER,
     },
     screenBgOverlay: {
+        top: Constants.NAV_HEIGHT,
         opacity: 0.7
+    },
+    splashText: {
+        color: 'white',
+        fontFamily: Constants.MAIN_FONT,
+        fontSize: 40,
+        fontWeight: 'bold'
     },
     title: {
         color: 'white',

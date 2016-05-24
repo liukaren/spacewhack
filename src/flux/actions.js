@@ -4,6 +4,8 @@ export default {
     RESUME_GAME: 'RESUME_GAME',
     QUIT_GAME: 'QUIT_GAME',
 
+    START_LEVEL: 'START_LEVEL',
+
     PLACE_MOLE: 'PLACE_MOLE',
     CLEAR_MOLE: 'CLEAR_MOLE',
 
