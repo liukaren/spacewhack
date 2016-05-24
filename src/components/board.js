@@ -15,6 +15,7 @@ export default class Board extends Component {
                         <View style={ styles.col } key={ colIndex }>
                             { col && <Mole moleType={ col }
                                            isPaused={ this.props.isPaused }
+                                           isSoundOn={ this.props.isSoundOn }
                                            level={ this.props.level }
                                            onDefeat={ () => { this.props.onDefeat(rowIndex, colIndex) } }
                                            onEvade={ () => { this.props.onEvade(rowIndex, colIndex) } }
@@ -30,6 +31,7 @@ export default class Board extends Component {
 Board.propTypes = {
     board: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.oneOf(Constants.MOLE_TYPES))).isRequired,
     isPaused: PropTypes.bool,
+    isSoundOn: PropTypes.bool,
     level: PropTypes.number.isRequired,
     onDefeat: PropTypes.func.isRequired,
     onEvade: PropTypes.func.isRequired

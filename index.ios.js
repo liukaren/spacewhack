@@ -25,10 +25,12 @@ class Game extends Component {
     constructor(props) {
         super(props)
 
-        this.resetGame()
+        this.state = Object.assign({}, this.getResetState(), {
+            isSoundOn: true
+        })
     }
 
-    resetGame() {
+    getResetState() {
         const level = 0
 
         // Initialize an empty board of `null`s
@@ -42,14 +44,13 @@ class Game extends Component {
             board.push(row)
         }
 
-        this.state = {
+        return {
             board,
             level,
             lives: Constants.INITIAL_LIVES,
             score: 0,
             gameState: Constants.GAME_STATES.INTRO
         }
-        this.stepTimeout = null
     }
 
     startGame() {
@@ -137,6 +138,7 @@ class Game extends Component {
             <Board key="board"
                    board={ this.state.board }
                    isPaused={ isPaused }
+                   isSoundOn={ this.state.isSoundOn }
                    level={ this.state.level }
                    onDefeat={ this.onDefeat.bind(this) }
                    onEvade={ this.onEvade.bind(this) } />
@@ -151,7 +153,11 @@ class Game extends Component {
                 // Just add a pause overlay.
                 return gameElements.concat([
                     <PauseScreen key="pause-screen"
-                                 onResume={ this.onResume.bind(this) } />
+                                 isSoundOn={ this.state.isSoundOn }
+                                 onResume={ this.onResume.bind(this) }
+                                 onToggleSound={ () => {
+                                     this.setState({ isSoundOn: !this.state.isSoundOn })
+                                 }} />
                 ])
             default:
                 return gameElements

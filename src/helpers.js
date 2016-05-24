@@ -9,3 +9,10 @@ export function getTileSize(level) {
         tileHeight: (height - Constants.NAV_HEIGHT) / numRows
     }
 }
+
+export function playSound(soundFile, isSoundOn) {
+    if (isSoundOn) {
+        soundFile.setCurrentTime(0)
+        soundFile.play()
+    }
+}

@@ -56,11 +56,10 @@ export default class Mole extends Component {
     onBop() {
         // Do nothing if the mole is already defeated or leaving
         if (this.state.moleState === MOLE_STATES.DEFEATED ||
-            this.state.moleState === MOLE_STATES.EVADING) { return; }
+            this.state.moleState === MOLE_STATES.EVADING) { return }
 
         // Play a sound
-        Constants.SOUND_BOP.setCurrentTime(0)
-        Constants.SOUND_BOP.play()
+        Helpers.playSound(Constants.SOUND_BOP, this.props.isSoundOn)
 
         const numBops = this.state.numBops + 1
         this.bopAnimValue.setValue(0)
@@ -181,6 +180,7 @@ export default class Mole extends Component {
 
 Mole.propTypes = {
     isPaused: PropTypes.bool,
+    isSoundOn: PropTypes.bool,
     level: PropTypes.number.isRequired,
     moleType: PropTypes.oneOf(Constants.MOLE_TYPES).isRequired,
     onDefeat: PropTypes.func.isRequired,
