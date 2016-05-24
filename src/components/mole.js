@@ -8,6 +8,7 @@ import {
 import * as Constants from '../constants.js'
 import { MOLE_STATES } from '../constants.js'
 import * as Helpers from '../helpers.js'
+import Timer from '../timer.js'
 
 // TODO: Why is this necessary? Values seem to be set incorrectly without this range
 function interpolateAnimationHack(animValue) {
@@ -28,27 +29,28 @@ export default class Mole extends Component {
         this.wormHoleAnimValue = new Animated.Value(0)
         this.bopAnimValue = new Animated.Value(0)
 
-        // Animate the wormhole
-        Animated.timing(this.wormHoleAnimValue, {
-            toValue: 1, duration: Constants.WORMHOLE_ANIMATION_MS
-        }).start()
-        // Shortly after, animate the mole coming out of it
-        Animated.sequence([
-            Animated.delay(Constants.MOLE_DELAY_MS),
+        // Animate the wormhole. Shortly after, animate the mole coming out of it
+        Animated.stagger(Constants.MOLE_DELAY_MS, [
+            Animated.timing(this.wormHoleAnimValue, {
+                toValue: 1, duration: Constants.WORMHOLE_ANIMATION_MS
+            }),
             Animated.spring(this.animValue, { toValue: 1, friction: 3 })
         ]).start()
 
         // After a timeout, animate the mole away and then call the parent to remove it
-        this.removeTimeout = setTimeout(() => {
+        this.removeTimeout = new Timer(() => {
             this.setState({ moleState: MOLE_STATES.EVADING })
             Animated.timing(this.animValue, { toValue: 0 }).start(this.props.onEvade)
         }, this.props.removeTimeoutMs)
     }
 
     componentWillUnmount() {
-        clearTimeout(this.removeTimeout)
-        clearTimeout(this.animateMoleTimeout)
-        if (this.bopAnimation) { this.bopAnimation.stop() }
+        this.removeTimeout.pause()
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.isPaused && !this.props.isPaused) { this.removeTimeout.pause() }
+        if (!nextProps.isPaused && this.props.isPaused) { this.removeTimeout.resume() }
     }
 
     onBop() {
@@ -68,7 +70,7 @@ export default class Mole extends Component {
 
         if (numBops >= this.props.moleType.bopsNeeded) {
             // Clear the remove timeout because the bop will remove it
-            clearTimeout(this.removeTimeout)
+            this.removeTimeout.pause()
 
             // When the animation is finished, call the parent fn to remove the mole
             this.setState({ moleState: MOLE_STATES.DEFEATED, numBops }, () => {
@@ -178,6 +180,7 @@ export default class Mole extends Component {
 }
 
 Mole.propTypes = {
+    isPaused: PropTypes.bool,
     level: PropTypes.number.isRequired,
     moleType: PropTypes.oneOf(Constants.MOLE_TYPES).isRequired,
     onDefeat: PropTypes.func.isRequired,

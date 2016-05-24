@@ -3,16 +3,23 @@ import * as Constants from '../../constants.js'
 
 export default styles = StyleSheet.create({
     screenBg: {
-        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+
+        position: 'absolute',
+        top: Constants.NAV_HEIGHT,
+        left: 0,
+        right: 0,
+        bottom: 0,
 
         backgroundColor: 'black',
         borderColor: 'white',
         borderRadius: 5,
         borderWidth: 3,
-
-        margin: Constants.GUTTER
+        margin: Constants.GUTTER,
+    },
+    screenBgOverlay: {
+        opacity: 0.7
     },
     title: {
         color: 'white',

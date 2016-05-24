@@ -8,7 +8,7 @@ import styles from './styles.js'
 
 export default class PauseScreen extends Component {
     render() {
-        return <View style={ styles.screenBg }>
+        return <View style={ [styles.screenBg, styles.screenBgOverlay] }>
             <Text style={ styles.title }>
                 PAUSED
             </Text>

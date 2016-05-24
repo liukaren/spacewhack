@@ -15,6 +15,7 @@ import {
 } from 'react-native'
 import * as Constants from './src/constants.js'
 import * as Helpers from './src/helpers.js'
+import Timer from './src/timer.js'
 import Board from './src/components/board.js'
 import NavBar from './src/components/navbar.js'
 import LevelScreen from './src/components/screens/level.js'
@@ -96,8 +97,9 @@ class Game extends Component {
         this.placeRandomMole()
         this.setState({ board: this.state.board })
 
-        const timeUntilNextStep = (Math.random() * Constants.ADD_INTERVAL_RANGE_MS) + Constants.ADD_INTERVAL_MIN_MS
-        this.stepTimeout = setTimeout(this.step.bind(this), timeUntilNextStep)
+        const timeUntilNextStep = (Math.random() * Constants.ADD_INTERVAL_RANGE_MS) +
+            Constants.ADD_INTERVAL_MIN_MS
+        this.stepTimeout = new Timer(this.step.bind(this), timeUntilNextStep)
     }
 
     onEvade(row, col) {
@@ -116,33 +118,42 @@ class Game extends Component {
     }
 
     onPause() {
-        // TODO: actually cancel all animations and timeouts
         this.setState({ gameState: Constants.GAME_STATES.PAUSED })
+        this.stepTimeout.pause()
     }
 
     onResume() {
         this.setState({ gameState: Constants.GAME_STATES.IN_GAME })
+        this.stepTimeout.resume()
     }
 
     getMainEl() {
+        const gameElements = [
+            <NavBar key="nav-bar"
+                    numLives={ this.state.lives }
+                    onPause={ this.onPause.bind(this) }
+                    score={ this.state.score } />,
+            <Board key="board"
+                   board={ this.state.board }
+                   isPaused={ this.state.gameState === Constants.GAME_STATES.PAUSED }
+                   level={ this.state.level }
+                   onDefeat={ this.onDefeat.bind(this) }
+                   onEvade={ this.onEvade.bind(this) } />
+        ]
+
         switch(this.state.gameState) {
             case Constants.GAME_STATES.INTRO:
                 return <LevelScreen level={ this.state.level }
                                     onStart={ this.startGame.bind(this) } />
             case Constants.GAME_STATES.PAUSED:
-                return <PauseScreen onResume={ this.onResume.bind(this) } />
+                // Keep all the game elements so we don't re-animate unnecessarily.
+                // Just add a pause overlay.
+                return gameElements.concat([
+                    <PauseScreen key="pause-screen"
+                                 onResume={ this.onResume.bind(this) } />
+                ])
             default:
-                return [
-                    <NavBar key="nav-bar"
-                            numLives={ this.state.lives }
-                            onPause={ this.onPause.bind(this) }
-                            score={ this.state.score } />,
-                    <Board key="board"
-                           board={ this.state.board }
-                           level={ this.state.level }
-                           onDefeat={ this.onDefeat.bind(this) }
-                           onEvade={ this.onEvade.bind(this) } />
-                ]
+                return gameElements
         }
     }
 
