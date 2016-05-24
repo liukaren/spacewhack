@@ -89,47 +89,24 @@ class Game extends Component {
 
         const timeUntilNextStep = (Math.random() * Constants.ADD_INTERVAL_RANGE_MS) +
             Constants.ADD_INTERVAL_MIN_MS
-        this.stepTimeout = new Timer(this.step.bind(this), timeUntilNextStep)
+        const stepTimeout = new Timer(this.step.bind(this), timeUntilNextStep)
+        dispatch({ type: Actions.SCHEDULE_STEP, stepTimeout })
     }
 
-    onEvade(row, col) {
-        dispatch({ type: Actions.CLEAR_MOLE, row, col })
-    }
 
-    onDefeat(row, col) {
-        const mole = this.state.board[row][col]
-        dispatch({
-            type: Actions.CLEAR_MOLE,
-            row, col,
-            lifeValue: mole.lifeValue,
-            scoreValue: mole.scoreValue
-        })
-    }
-
-    onPause() {
-        dispatch({ type: Actions.PAUSE_GAME })
-        this.stepTimeout.pause()
-    }
-
-    onResume() {
-        dispatch({ type: Actions.RESUME_GAME })
-        this.stepTimeout.resume()
-    }
 
     getMainEl() {
         const isPaused = this.state.gameState === Constants.GAME_STATES.PAUSED
         const gameElements = [
             <NavBar key="nav-bar"
+                    isPaused={ isPaused }
                     numLives={ this.state.lives }
-                    onTogglePause={ () => isPaused ? this.onResume() : this.onPause() }
                     score={ this.state.score } />,
             <Board key="board"
                    board={ this.state.board }
                    isPaused={ isPaused }
                    isSoundOn={ this.state.isSoundOn }
-                   level={ this.state.level }
-                   onDefeat={ this.onDefeat.bind(this) }
-                   onEvade={ this.onEvade.bind(this) } />
+                   level={ this.state.level } />
         ]
 
         switch(this.state.gameState) {
@@ -141,11 +118,7 @@ class Game extends Component {
                 // Just add a pause overlay.
                 return gameElements.concat([
                     <PauseScreen key="pause-screen"
-                                 isSoundOn={ this.state.isSoundOn }
-                                 onResume={ this.onResume.bind(this) }
-                                 onToggleSound={ () => dispatch({
-                                     type: Actions.TOGGLE_SOUND
-                                 }) } />
+                                 isSoundOn={ this.state.isSoundOn } />
                 ])
             default:
                 return gameElements

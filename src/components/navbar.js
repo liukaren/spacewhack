@@ -7,8 +7,18 @@ import {
     View
 } from 'react-native'
 import * as Constants from '../constants.js'
+import Actions from '../flux/actions.js'
+import { dispatch } from '../flux/dispatcher.js'
 
 export default class NavBar extends Component {
+    onTogglePause() {
+        if (this.props.isPaused) {
+            dispatch({ type: Actions.RESUME_GAME })
+        } else {
+            dispatch({ type: Actions.PAUSE_GAME })
+        }
+    }
+
     render() {
         // Show lives with repeating hearts
         const lifeEls = []
@@ -26,7 +36,7 @@ export default class NavBar extends Component {
                 { lifeEls }
             </View>
             <View style={ styles.pauseContainer }>
-                <TouchableWithoutFeedback onPress={ this.props.onTogglePause }>
+                <TouchableWithoutFeedback onPress={ this.onTogglePause.bind(this) }>
                     <Image source={ require('../../images/pause.png') }
                            style={ styles.pauseButton } />
                 </TouchableWithoutFeedback>
@@ -37,8 +47,7 @@ export default class NavBar extends Component {
 
 NavBar.propTypes = {
     numLives: PropTypes.number.isRequired,
-    onTogglePause: PropTypes.func.isRequired,
-    score: PropTypes.number.isRequired,
+    score: PropTypes.number.isRequired
 }
 
 const styles = StyleSheet.create({

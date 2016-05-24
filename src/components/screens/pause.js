@@ -6,6 +6,8 @@ import {
     View
 } from 'react-native'
 import styles from './styles.js'
+import Actions from '../../flux/actions.js'
+import { dispatch } from '../../flux/dispatcher.js'
 
 const IMG_SOUND_ON = require('../../../images/soundOn.png')
 const IMG_SOUND_OFF = require('../../../images/soundOff.png')
@@ -17,11 +19,11 @@ export default class PauseScreen extends Component {
                 PAUSED
             </Text>
 
-            <TouchableHighlight onPress={ this.props.onToggleSound }>
+            <TouchableHighlight onPress={ () => dispatch({ type: Actions.TOGGLE_SOUND })}>
                 <Image source={ this.props.isSoundOn ? IMG_SOUND_ON : IMG_SOUND_OFF } />
             </TouchableHighlight>
 
-            <TouchableHighlight onPress={ this.props.onResume }>
+            <TouchableHighlight onPress={ () => dispatch({ type: Actions.RESUME_GAME }) }>
                 <Text style={ styles.button }>Resume</Text>
             </TouchableHighlight>
         </View>
@@ -29,7 +31,5 @@ export default class PauseScreen extends Component {
 }
 
 PauseScreen.propTypes = {
-    isSoundOn: PropTypes.bool,
-    onResume: PropTypes.func.isRequired,
-    onToggleSound: PropTypes.func.isRequired
+    isSoundOn: PropTypes.bool
 }

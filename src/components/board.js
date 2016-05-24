@@ -6,7 +6,24 @@ import {
 import * as Constants from '../constants.js'
 import Mole from './mole.js'
 
+import Actions from '../flux/actions.js'
+import { dispatch } from '../flux/dispatcher.js'
+
 export default class Board extends Component {
+    onEvade(row, col) {
+       dispatch({ type: Actions.CLEAR_MOLE, row, col })
+    }
+
+    onDefeat(row, col) {
+        const mole = this.props.board[row][col]
+        dispatch({
+            type: Actions.CLEAR_MOLE,
+            row, col,
+            lifeValue: mole.lifeValue,
+            scoreValue: mole.scoreValue
+        })
+    }
+
     render() {
         return <View style={ styles.container }>
             { this.props.board.map((row, rowIndex) => (
@@ -17,8 +34,8 @@ export default class Board extends Component {
                                            isPaused={ this.props.isPaused }
                                            isSoundOn={ this.props.isSoundOn }
                                            level={ this.props.level }
-                                           onDefeat={ () => { this.props.onDefeat(rowIndex, colIndex) } }
-                                           onEvade={ () => { this.props.onEvade(rowIndex, colIndex) } }
+                                           onDefeat={ () => { this.onDefeat(rowIndex, colIndex) } }
+                                           onEvade={ () => { this.onEvade(rowIndex, colIndex) } }
                                            removeTimeoutMs={ Constants.MOLE_DURATION_MS } /> }
                         </View>
                     )) }
@@ -32,9 +49,7 @@ Board.propTypes = {
     board: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.oneOf(Constants.MOLE_TYPES))).isRequired,
     isPaused: PropTypes.bool,
     isSoundOn: PropTypes.bool,
-    level: PropTypes.number.isRequired,
-    onDefeat: PropTypes.func.isRequired,
-    onEvade: PropTypes.func.isRequired
+    level: PropTypes.number.isRequired
 }
 
 const styles = StyleSheet.create({
