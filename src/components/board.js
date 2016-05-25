@@ -11,7 +11,13 @@ import { dispatch } from '../flux/dispatcher.js'
 
 export default class Board extends Component {
     onEvade(row, col) {
-       dispatch({ type: Actions.CLEAR_MOLE, row, col })
+        const mole = this.props.board[row][col]
+        dispatch({
+            type: Actions.CLEAR_MOLE,
+            row, col,
+            lifeChange: mole.missedLifeValue,
+            scoreChange: 0
+        })
     }
 
     onDefeat(row, col) {
@@ -19,8 +25,8 @@ export default class Board extends Component {
         dispatch({
             type: Actions.CLEAR_MOLE,
             row, col,
-            lifeValue: mole.lifeValue,
-            scoreValue: mole.scoreValue
+            lifeChange: mole.lifeValue,
+            scoreChange: mole.scoreValue
         })
     }
 

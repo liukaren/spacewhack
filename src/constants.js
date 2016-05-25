@@ -8,7 +8,8 @@ export const GAME_STATES = {
     SPLASH_SCREEN: 1,
     LEVEL_SCREEN: 2,
     IN_GAME: 3,
-    PAUSE_SCREEN: 4
+    PAUSE_SCREEN: 4,
+    GAME_OVER_SCREEN: 5
 }
 
 export const MOLE_TYPES = [{
@@ -17,6 +18,7 @@ export const MOLE_TYPES = [{
     bopsNeeded: 1,
     lifeValue: 0,
     likelihoodWeight: 1,
+    missedLifeValue: -1,
     scoreValue: 10
 }, {
     image: require('../images/yellow.png'),
@@ -24,6 +26,7 @@ export const MOLE_TYPES = [{
     bopsNeeded: 2,
     lifeValue: 0,
     likelihoodWeight: 1,
+    missedLifeValue: -1,
     scoreValue: 25
 }, {
     image: require('../images/bunny.png'),
@@ -31,6 +34,7 @@ export const MOLE_TYPES = [{
     bopsNeeded: 1,
     lifeValue: -1,
     likelihoodWeight: 0.5,
+    missedLifeValue: 0,
     scoreValue: 0
 }, {
     image: require('../images/heart.png'),
@@ -38,6 +42,7 @@ export const MOLE_TYPES = [{
     bopsNeeded: 1,
     lifeValue: 1,
     likelihoodWeight: 0.2,
+    missedLifeValue: 0,
     scoreValue: 0
 }]
 

@@ -58,12 +58,17 @@ class GameStore extends ReduceStore {
             case Actions.CLEAR_MOLE:
                 // TODO: Stop mutating the state's board
                 state.board[action.row][action.col] = null
-                const lifeValue = action.lifeValue || 0
-                const scoreValue = action.scoreValue || 0
-                return combineState(state, {
-                    lives: Math.min(state.lives + lifeValue, Constants.MAX_LIVES),
-                    score: state.score + scoreValue
-                })
+
+                let newState = {
+                    lives: Math.min(state.lives + action.lifeChange, Constants.MAX_LIVES),
+                    score: state.score + action.scoreChange
+                }
+
+                if (newState.lives === 0) {
+                    newState.gameState = Constants.GAME_STATES.GAME_OVER_SCREEN
+                }
+
+                return combineState(state, newState)
             case Actions.SCHEDULE_STEP:
                 return combineState(state, { stepTimeout: action.stepTimeout })
             case Actions.TOGGLE_SOUND:

@@ -21,6 +21,7 @@ import Timer from './src/timer.js'
 
 import Board from './src/components/board.js'
 import NavBar from './src/components/navbar.js'
+import GameOverScreen from './src/components/screens/gameOver.js'
 import LevelScreen from './src/components/screens/level.js'
 import PauseScreen from './src/components/screens/pause.js'
 import SplashScreen from './src/components/screens/splash.js'
@@ -115,6 +116,8 @@ class Game extends Component {
                     <PauseScreen key="pause-screen"
                                  isSoundOn={ this.state.isSoundOn } />
                 ])
+            case Constants.GAME_STATES.GAME_OVER_SCREEN:
+                return <GameOverScreen />
             default:
                 return gameElements
         }
