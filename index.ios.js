@@ -88,8 +88,6 @@ class Game extends Component {
         dispatch({ type: Actions.SCHEDULE_STEP, stepTimeout })
     }
 
-
-
     getMainEl() {
         const isPaused = this.state.gameState === Constants.GAME_STATES.PAUSE_SCREEN
         const gameElements = [
@@ -106,7 +104,7 @@ class Game extends Component {
 
         switch(this.state.gameState) {
             case Constants.GAME_STATES.SPLASH_SCREEN:
-                return <SplashScreen />
+                return <SplashScreen isSoundOn={ this.state.isSoundOn } />
             case Constants.GAME_STATES.LEVEL_SCREEN:
                 return <LevelScreen level={ this.state.level }
                                     onStart={ this.startLevel.bind(this) } />

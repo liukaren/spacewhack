@@ -7,11 +7,9 @@ import {
     View
 } from 'react-native'
 import styles from './styles.js'
+import * as Constants from '../../constants.js'
 import Actions from '../../flux/actions.js'
 import { dispatch } from '../../flux/dispatcher.js'
-
-const IMG_SOUND_ON = require('../../../images/soundOn.png')
-const IMG_SOUND_OFF = require('../../../images/soundOff.png')
 
 export default class PauseScreen extends Component {
     confirmQuit() {
@@ -30,7 +28,8 @@ export default class PauseScreen extends Component {
             </Text>
 
             <TouchableHighlight onPress={ () => dispatch({ type: Actions.TOGGLE_SOUND })}>
-                <Image source={ this.props.isSoundOn ? IMG_SOUND_ON : IMG_SOUND_OFF } />
+                <Image source={ this.props.isSoundOn ?
+                    Constants.IMG_SOUND_ON : Constants.IMG_SOUND_OFF } />
             </TouchableHighlight>
 
             <TouchableHighlight onPress={ () => dispatch({ type: Actions.RESUME_GAME }) }>

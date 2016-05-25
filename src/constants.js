@@ -79,3 +79,7 @@ export const NAV_HEIGHT = 40 // TODO: make this responsive?
 export const SOUND_BOP = new Sound('pop.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) { console.log('failed to load the sound', error) }
 })
+
+// -------- IMAGES --------
+export const IMG_SOUND_ON = require('../images/soundOn.png')
+export const IMG_SOUND_OFF = require('../images/soundOff.png')
