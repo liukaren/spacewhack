@@ -1,3 +1,4 @@
+import { Animated, Easing } from 'react-native'
 import { ReduceStore } from 'flux/utils'
 import Actions from './actions.js'
 import Dispatcher from './dispatcher.js'
@@ -27,7 +28,8 @@ function getResetState() {
         lives: Constants.INITIAL_LIVES,
         score: 0,
         gameState: Constants.GAME_STATES.SPLASH_SCREEN,
-        stepTimeout: null
+        stepTimeout: null,
+        damageAnimValue: new Animated.Value(0)
     }
 }
 
@@ -66,6 +68,13 @@ class GameStore extends ReduceStore {
 
                 if (newState.lives === 0) {
                     newState.gameState = Constants.GAME_STATES.GAME_OVER_SCREEN
+                }
+
+                // If the player sustained damage, animate the impact.
+                if (action.lifeChange < 0) {
+                    newState.damageAnimValue = new Animated.Value(0)
+                    Animated.timing(newState.damageAnimValue,
+                        { toValue: 1, easing: Easing.easeOut }).start()
                 }
 
                 return combineState(state, newState)

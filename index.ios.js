@@ -6,6 +6,7 @@
 
 import React, { Component, PropTypes } from 'react'
 import {
+    Animated,
     AppRegistry,
     Image,
     StatusBar,
@@ -119,18 +120,38 @@ class Game extends Component {
             case Constants.GAME_STATES.GAME_OVER_SCREEN:
                 return <GameOverScreen />
             default:
-                return gameElements
+                return <Animated.View style={[ Constants.POSITION_FILL, {
+                    transform: [{
+                        translateX: this.state.damageAnimValue.interpolate({
+                            inputRange: [0, 0.2, 0.4, 0.6, 0.8, 1],
+                            outputRange: [-5, 5, -3, 3, -1, 0]
+                        })
+                    }]
+                }]}>
+                    { gameElements }
+                </Animated.View>
         }
     }
 
     render() {
         const { tileWidth, tileHeight } = Helpers.getTileSize(this.state.level)
 
+        // A white full-screen flash that happens when the player is damaged
+        const damageOverlay =
+            <Animated.View style={[ Constants.POSITION_FILL, {
+                backgroundColor: 'white',
+                opacity: this.state.damageAnimValue.interpolate({
+                    inputRange: [0, 0.1, 0.2, 1],
+                    outputRange: [0, 1, 0, 0]
+                })
+            }]} pointerEvents='none' />
+
         return (
             <Image source={ require('./images/space.png') }
                    style={ styles.background }>
                 <StatusBar hidden />
                 { this.getMainEl() }
+                { damageOverlay }
             </Image>
         )
     }

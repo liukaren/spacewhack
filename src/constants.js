@@ -79,12 +79,21 @@ export const GUTTER = 10 // TODO: make this responsive?
 export const MAIN_FONT = 'Avenir Next'
 export const MOLE_SHRINK_SCALE = 0.5
 export const NAV_HEIGHT = 40 // TODO: make this responsive?
+export const POSITION_FILL = {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0
+}
 
 // -------- SOUNDS --------
+
 export const SOUND_BOP = new Sound('pop.mp3', Sound.MAIN_BUNDLE, (error) => {
     if (error) { console.log('failed to load the sound', error) }
 })
 
 // -------- IMAGES --------
+
 export const IMG_SOUND_ON = require('../images/soundOn.png')
 export const IMG_SOUND_OFF = require('../images/soundOff.png')
