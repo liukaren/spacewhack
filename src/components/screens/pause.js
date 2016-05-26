@@ -32,12 +32,12 @@ export default class PauseScreen extends Component {
                     Constants.IMG_SOUND_ON : Constants.IMG_SOUND_OFF } />
             </TouchableHighlight>
 
-            <TouchableHighlight onPress={ () => dispatch({ type: Actions.RESUME_GAME }) }>
-                <Text style={ styles.button }>Resume</Text>
+            <TouchableHighlight onPress={ this.confirmQuit }>
+                <Text style={ styles.button }>Quit Game</Text>
             </TouchableHighlight>
 
-            <TouchableHighlight onPress={ this.confirmQuit }>
-                <Text style={ styles.button }>Quit</Text>
+            <TouchableHighlight onPress={ () => dispatch({ type: Actions.RESUME_GAME }) }>
+                <Text style={ styles.button }>Resume</Text>
             </TouchableHighlight>
         </View>
     }
