@@ -100,7 +100,6 @@ class Game extends Component {
             <Board key="board"
                    board={ this.state.board }
                    isPaused={ isPaused }
-                   isSoundOn={ this.state.isSoundOn }
                    level={ this.state.level } />
         ]
 

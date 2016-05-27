@@ -52,7 +52,7 @@ export default class Mole extends Component {
                 toValue: 0, duration: Constants.MOLE_LEAVE_MS
             }).start(() => {
                 if (shouldLeaveBomb) {
-                    Helpers.playSound(Constants.SOUND_BOMB, this.props.isSoundOn)
+                    Helpers.playSound(Constants.SOUNDS.BOMB)
                 }
                 this.props.onEvade()
             })
@@ -74,7 +74,7 @@ export default class Mole extends Component {
             this.state.moleState === MOLE_STATES.EVADING) { return }
 
         // Play a sound
-        Helpers.playSound(Constants.SOUND_BOP, this.props.isSoundOn)
+        Helpers.playSound(Constants.SOUNDS.BOP)
 
         const numBops = this.state.numBops + 1
         this.bopAnimValue.setValue(0)
@@ -201,7 +201,6 @@ export default class Mole extends Component {
 
 Mole.propTypes = {
     isPaused: PropTypes.bool,
-    isSoundOn: PropTypes.bool,
     level: PropTypes.number.isRequired,
     moleType: PropTypes.oneOf(Constants.MOLE_TYPES).isRequired,
     onDefeat: PropTypes.func.isRequired,

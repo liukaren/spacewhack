@@ -42,7 +42,7 @@ class GameStore extends ReduceStore {
     reduce(state, action) {
         switch(action.type) {
             case Actions.START_GAME:
-                Helpers.playSound(Constants.SOUND_MAIN_SONG, state.isSoundOn, true)
+                Helpers.playSound(Constants.SOUNDS.MAIN_SONG, state.isSoundOn, true)
                 return combineState(state, { gameState: Constants.GAME_STATES.LEVEL_SCREEN })
             case Actions.PAUSE_GAME:
                 state.stepTimeout.pause()
@@ -51,7 +51,7 @@ class GameStore extends ReduceStore {
                 state.stepTimeout.resume()
                 return combineState(state, { gameState: Constants.GAME_STATES.IN_GAME })
             case Actions.QUIT_GAME:
-                Constants.SOUND_MAIN_SONG.stop()
+                Constants.SOUNDS.MAIN_SONG.stop()
                 state.stepTimeout.pause()
                 return combineState(state, getResetState())
             case Actions.START_LEVEL:
@@ -84,6 +84,10 @@ class GameStore extends ReduceStore {
             case Actions.SCHEDULE_STEP:
                 return combineState(state, { stepTimeout: action.stepTimeout })
             case Actions.TOGGLE_SOUND:
+                const newVolume = state.isSoundOn ? 0 : 1
+                for (sound in Constants.SOUNDS) {
+                    Constants.SOUNDS[sound].setVolume(newVolume)
+                }
                 return combineState(state, { isSoundOn: !state.isSoundOn })
             default:
                 return state

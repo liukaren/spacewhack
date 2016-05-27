@@ -10,10 +10,8 @@ export function getTileSize(level) {
     }
 }
 
-export function playSound(soundFile, isSoundOn, loop) {
-    if (isSoundOn) {
-        soundFile.setCurrentTime(0)
-        if (loop) { soundFile.setNumberOfLoops(-1) }
-        soundFile.play()
-    }
+export function playSound(soundFile, loop) {
+    soundFile.setCurrentTime(0)
+    if (loop) { soundFile.setNumberOfLoops(-1) }
+    soundFile.play()
 }

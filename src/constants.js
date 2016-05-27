@@ -96,10 +96,12 @@ function loadSound(fileName) {
     })
 }
 
-export const SOUND_BOP = loadSound('pop.mp3')
-export const SOUND_BOMB = loadSound('bomb.wav')
-export const SOUND_MENU_SONG = loadSound('menu.mp3')
-export const SOUND_MAIN_SONG = loadSound('subdream.mp3')
+export const SOUNDS = {
+    BOP: loadSound('pop.mp3'),
+    BOMB: loadSound('bomb.wav'),
+    MENU_SONG: loadSound('menu.mp3'),
+    MAIN_SONG: loadSound('subdream.mp3')
+}
 
 // -------- IMAGES --------
 
