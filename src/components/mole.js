@@ -41,10 +41,21 @@ export default class Mole extends Component {
         // After a timeout, animate the mole away and then call the parent to remove it
         this.removeTimeout = new Timer(() => {
             this.setState({ moleState: MOLE_STATES.EVADING })
-            Animated.timing(this.bombAnimValue,
-                { toValue: 1, duration: Constants.MOLE_LEAVE_MS }).start()
-            Animated.timing(this.animValue,
-                { toValue: 0, duration: Constants.MOLE_LEAVE_MS }).start(this.props.onEvade)
+
+            const shouldLeaveBomb = this.props.moleType.missedLifeValue < 0
+            if (shouldLeaveBomb) {
+                Animated.timing(this.bombAnimValue,
+                    { toValue: 1, duration: Constants.MOLE_LEAVE_MS }).start()
+            }
+
+            Animated.timing(this.animValue, {
+                toValue: 0, duration: Constants.MOLE_LEAVE_MS
+            }).start(() => {
+                if (shouldLeaveBomb) {
+                    Helpers.playSound(Constants.SOUND_BOMB, this.props.isSoundOn)
+                }
+                this.props.onEvade()
+            })
         }, this.props.removeTimeoutMs)
     }
 
@@ -94,8 +105,6 @@ export default class Mole extends Component {
         const boppedImage = this.props.moleType.boppedImage
         const { tileWidth, tileHeight } = Helpers.getTileSize(this.props.level)
         const moleState = this.state.moleState
-        const shouldLeaveBomb = moleState === MOLE_STATES.EVADING &&
-            this.props.moleType.missedLifeValue < 0
 
         const imageStyle = {
             position: 'absolute',
@@ -161,7 +170,6 @@ export default class Mole extends Component {
                                 })} />
                 <Animated.Image source={ Constants.IMG_BOMB }
                                 style={ Object.assign({}, imageStyle, {
-                                    opacity: shouldLeaveBomb ? 1 : 0,
                                     transform: [{
                                         scale: interpolateAnimationHack(this.bombAnimValue)
                                     }]

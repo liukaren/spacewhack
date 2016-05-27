@@ -91,7 +91,10 @@ export const MOLE_LEAVE_MS = 500
 // -------- SOUNDS --------
 
 export const SOUND_BOP = new Sound('pop.mp3', Sound.MAIN_BUNDLE, (error) => {
-    if (error) { console.log('failed to load the sound', error) }
+    if (error) { console.log('failed to load the bop sound', error) }
+})
+export const SOUND_BOMB = new Sound('bomb.wav', Sound.MAIN_BUNDLE, (error) => {
+    if (error) { console.log('failed to load the bomb sound', error) }
 })
 
 // -------- IMAGES --------
