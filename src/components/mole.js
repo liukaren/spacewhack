@@ -28,6 +28,7 @@ export default class Mole extends Component {
         this.animValue = new Animated.Value(0)
         this.wormHoleAnimValue = new Animated.Value(0)
         this.bopAnimValue = new Animated.Value(0)
+        this.bombAnimValue = new Animated.Value(0)
 
         // Animate the wormhole. Shortly after, animate the mole coming out of it
         Animated.stagger(Constants.MOLE_DELAY_MS, [
@@ -40,7 +41,10 @@ export default class Mole extends Component {
         // After a timeout, animate the mole away and then call the parent to remove it
         this.removeTimeout = new Timer(() => {
             this.setState({ moleState: MOLE_STATES.EVADING })
-            Animated.timing(this.animValue, { toValue: 0 }).start(this.props.onEvade)
+            Animated.timing(this.bombAnimValue,
+                { toValue: 1, duration: Constants.MOLE_LEAVE_MS }).start()
+            Animated.timing(this.animValue,
+                { toValue: 0, duration: Constants.MOLE_LEAVE_MS }).start(this.props.onEvade)
         }, this.props.removeTimeoutMs)
     }
 
@@ -90,6 +94,8 @@ export default class Mole extends Component {
         const boppedImage = this.props.moleType.boppedImage
         const { tileWidth, tileHeight } = Helpers.getTileSize(this.props.level)
         const moleState = this.state.moleState
+        const shouldLeaveBomb = moleState === MOLE_STATES.EVADING &&
+            this.props.moleType.missedLifeValue < 0
 
         const imageStyle = {
             position: 'absolute',
@@ -151,6 +157,13 @@ export default class Mole extends Component {
                                             inputRange: [0, 1],
                                             outputRange: [1, 0]
                                         })
+                                    }]
+                                })} />
+                <Animated.Image source={ Constants.IMG_BOMB }
+                                style={ Object.assign({}, imageStyle, {
+                                    opacity: shouldLeaveBomb ? 1 : 0,
+                                    transform: [{
+                                        scale: interpolateAnimationHack(this.bombAnimValue)
                                     }]
                                 })} />
                 { this.props.moleType.scoreValue > 0 &&

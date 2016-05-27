@@ -86,6 +86,7 @@ export const POSITION_FILL = {
     left: 0,
     right: 0
 }
+export const MOLE_LEAVE_MS = 500
 
 // -------- SOUNDS --------
 
@@ -95,5 +96,6 @@ export const SOUND_BOP = new Sound('pop.mp3', Sound.MAIN_BUNDLE, (error) => {
 
 // -------- IMAGES --------
 
+export const IMG_BOMB = require('../images/bomb.png')
 export const IMG_SOUND_ON = require('../images/soundOn.png')
 export const IMG_SOUND_OFF = require('../images/soundOff.png')
