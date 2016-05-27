@@ -90,12 +90,16 @@ export const MOLE_LEAVE_MS = 500
 
 // -------- SOUNDS --------
 
-export const SOUND_BOP = new Sound('pop.mp3', Sound.MAIN_BUNDLE, (error) => {
-    if (error) { console.log('failed to load the bop sound', error) }
-})
-export const SOUND_BOMB = new Sound('bomb.wav', Sound.MAIN_BUNDLE, (error) => {
-    if (error) { console.log('failed to load the bomb sound', error) }
-})
+function loadSound(fileName) {
+    return new Sound(fileName, Sound.MAIN_BUNDLE, (error) => {
+        if (error) { console.log(`Failed to load sound file: ${fileName}`, error) }
+    })
+}
+
+export const SOUND_BOP = loadSound('pop.mp3')
+export const SOUND_BOMB = loadSound('bomb.wav')
+export const SOUND_MENU_SONG = loadSound('menu.mp3')
+export const SOUND_MAIN_SONG = loadSound('subdream.mp3')
 
 // -------- IMAGES --------
 

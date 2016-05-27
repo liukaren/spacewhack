@@ -3,6 +3,7 @@ import { ReduceStore } from 'flux/utils'
 import Actions from './actions.js'
 import Dispatcher from './dispatcher.js'
 import * as Constants from '../constants.js'
+import * as Helpers from '../helpers.js'
 
 function combineState(state, newState) {
     return Object.assign({}, state, newState)
@@ -41,6 +42,7 @@ class GameStore extends ReduceStore {
     reduce(state, action) {
         switch(action.type) {
             case Actions.START_GAME:
+                Helpers.playSound(Constants.SOUND_MAIN_SONG, state.isSoundOn, true)
                 return combineState(state, { gameState: Constants.GAME_STATES.LEVEL_SCREEN })
             case Actions.PAUSE_GAME:
                 state.stepTimeout.pause()
@@ -49,6 +51,7 @@ class GameStore extends ReduceStore {
                 state.stepTimeout.resume()
                 return combineState(state, { gameState: Constants.GAME_STATES.IN_GAME })
             case Actions.QUIT_GAME:
+                Constants.SOUND_MAIN_SONG.stop()
                 state.stepTimeout.pause()
                 return combineState(state, getResetState())
             case Actions.START_LEVEL:
