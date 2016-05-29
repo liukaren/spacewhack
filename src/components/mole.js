@@ -8,7 +8,9 @@ import {
 import * as Constants from '../constants.js'
 import { MOLE_STATES } from '../constants.js'
 import * as Helpers from '../helpers.js'
-import Timer from '../timer.js'
+
+import Actions from '../flux/actions.js'
+import { dispatch } from '../flux/dispatcher.js'
 
 // TODO: Why is this necessary? Values seem to be set incorrectly without this range
 function interpolateAnimationHack(animValue) {
@@ -19,92 +21,11 @@ function interpolateAnimationHack(animValue) {
 }
 
 export default class Mole extends Component {
-    constructor(props) {
-        super(props)
-        this.state = { moleState: MOLE_STATES.DEFAULT, numBops: 0 }
-    }
-
-    componentWillMount() {
-        this.animValue = new Animated.Value(0)
-        this.wormHoleAnimValue = new Animated.Value(0)
-        this.bopAnimValue = new Animated.Value(0)
-        this.bombAnimValue = new Animated.Value(0)
-
-        // Animate the wormhole. Shortly after, animate the mole coming out of it
-        Animated.stagger(Constants.MOLE_DELAY_MS, [
-            Animated.timing(this.wormHoleAnimValue, {
-                toValue: 1, duration: Constants.WORMHOLE_ANIMATION_MS
-            }),
-            Animated.spring(this.animValue, { toValue: 1, friction: 3 })
-        ]).start()
-
-        // After a timeout, animate the mole away and then call the parent to remove it
-        this.removeTimeout = new Timer(() => {
-            this.setState({ moleState: MOLE_STATES.EVADING })
-
-            const shouldLeaveBomb = this.props.moleType.missedLifeValue < 0
-            if (shouldLeaveBomb) {
-                Animated.timing(this.bombAnimValue,
-                    { toValue: 1, duration: Constants.MOLE_LEAVE_MS }).start()
-            }
-
-            Animated.timing(this.animValue, {
-                toValue: 0, duration: Constants.MOLE_LEAVE_MS
-            }).start(() => {
-                if (shouldLeaveBomb) {
-                    Helpers.playSound(Constants.SOUNDS.BOMB)
-                }
-                this.props.onEvade()
-            })
-        }, this.props.removeTimeoutMs)
-    }
-
-    componentWillUnmount() {
-        this.removeTimeout.pause()
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.isPaused && !this.props.isPaused) { this.removeTimeout.pause() }
-        if (!nextProps.isPaused && this.props.isPaused) { this.removeTimeout.resume() }
-    }
-
-    onBop() {
-        // Do nothing if the mole is already defeated or leaving
-        if (this.state.moleState === MOLE_STATES.DEFEATED ||
-            this.state.moleState === MOLE_STATES.EVADING) { return }
-
-        // Play a sound
-        Helpers.playSound(Constants.SOUNDS.BOP)
-
-        const numBops = this.state.numBops + 1
-        this.bopAnimValue.setValue(0)
-        this.bopAnimation = Animated.timing(this.bopAnimValue, {
-            toValue: 1, easing: Easing.easeIn
-        })
-
-        if (numBops >= this.props.moleType.bopsNeeded) {
-            // Clear the remove timeout because the bop will remove it
-            this.removeTimeout.pause()
-
-            // When the animation is finished, call the parent fn to remove the mole
-            this.setState({ moleState: MOLE_STATES.DEFEATED, numBops }, () => {
-                this.bopAnimation.start(this.props.onDefeat)
-            })
-        } else {
-            // When the animation is finished, reset state
-            this.setState({ moleState: MOLE_STATES.BOPPED, numBops }, () => {
-                this.bopAnimation.start(() => {
-                    this.setState({ moleState: MOLE_STATES.DEFAULT })
-                })
-            })
-        }
-    }
-
     render() {
         const image = this.props.moleType.image
         const boppedImage = this.props.moleType.boppedImage
         const { tileWidth, tileHeight } = Helpers.getTileSize(this.props.level)
-        const moleState = this.state.moleState
+        const moleState = this.props.moleState
 
         const imageStyle = {
             position: 'absolute',
@@ -118,21 +39,27 @@ export default class Mole extends Component {
 
         // NOTE: All images are rendered with an opacity of 0 rather than
         // unrendered so there is no flicker when switching between images.
-        return <TouchableWithoutFeedback onPress={ this.onBop.bind(this) }>
+        return <TouchableWithoutFeedback onPress={ () => {
+                dispatch({
+                    type: Actions.BOP_MOLE,
+                    row: this.props.row,
+                    col: this.props.col
+                })
+            }}>
             <View style={{ width: tileWidth, height: tileHeight }}>
                 <Animated.Image source={ require('../../images/wormhole.png') }
                                 style={ Object.assign({}, imageStyle, {
-                                    opacity: this.wormHoleAnimValue.interpolate({
+                                    opacity: this.props.wormHoleAnimValue.interpolate({
                                         inputRange: [0, 0.8, 1],
                                         outputRange: [0, 1, 0]
                                     }),
                                     transform: [{
-                                        rotate: this.wormHoleAnimValue.interpolate({
+                                        rotate: this.props.wormHoleAnimValue.interpolate({
                                             inputRange: [0, 1],
                                             outputRange: ['0deg', '90deg']
                                         })
                                     }, {
-                                        scale: this.wormHoleAnimValue.interpolate({
+                                        scale: this.props.wormHoleAnimValue.interpolate({
                                             inputRange: [0, 1],
                                             outputRange: [0.5, 1]
                                         })
@@ -143,16 +70,16 @@ export default class Mole extends Component {
                                     opacity: (
                                         moleState === MOLE_STATES.DEFAULT ||
                                         moleState === MOLE_STATES.EVADING) ?
-                                            interpolateAnimationHack(this.animValue) : 0,
+                                            interpolateAnimationHack(this.props.animValue) : 0,
                                     transform: [{
-                                        scale: interpolateAnimationHack(this.animValue)
+                                        scale: interpolateAnimationHack(this.props.animValue)
                                     }]
                                 })} />
                 <Animated.Image source={ boppedImage }
                                 style={ Object.assign({}, imageStyle, {
                                     opacity: moleState === MOLE_STATES.BOPPED ? 1 : 0,
                                     transform: [{
-                                        scale: this.bopAnimValue.interpolate({
+                                        scale: this.props.bopAnimValue.interpolate({
                                             inputRange: [0, 0.5, 1],
                                             outputRange: [1, Constants.MOLE_SHRINK_SCALE, 1]
                                         })
@@ -162,7 +89,7 @@ export default class Mole extends Component {
                                 style={ Object.assign({}, imageStyle, {
                                     opacity: moleState === MOLE_STATES.DEFEATED ? 1 : 0,
                                     transform: [{
-                                        scale: this.bopAnimValue.interpolate({
+                                        scale: this.props.bopAnimValue.interpolate({
                                             inputRange: [0, 1],
                                             outputRange: [1, 0]
                                         })
@@ -171,11 +98,11 @@ export default class Mole extends Component {
                 <Animated.Image source={ Constants.IMG_BOMB }
                                 style={ Object.assign({}, imageStyle, {
                                     transform: [{
-                                        scale: interpolateAnimationHack(this.bombAnimValue)
+                                        scale: interpolateAnimationHack(this.props.bombAnimValue)
                                     }]
                                 })} />
                 { this.props.moleType.scoreValue > 0 &&
-                  this.state.moleState === MOLE_STATES.DEFEATED &&
+                  this.props.moleState === MOLE_STATES.DEFEATED &&
                     <Animated.Text style={{
                         position: 'absolute',
                         bottom: tileHeight / 3,
@@ -188,7 +115,7 @@ export default class Mole extends Component {
                         fontWeight: 'bold',
                         textAlign: 'center',
                         transform: [{
-                            translateY: this.bopAnimValue.interpolate({
+                            translateY: this.props.bopAnimValue.interpolate({
                                 inputRange: [0, 1],
                                 outputRange: [0, -tileHeight / 3]
                             })
@@ -200,10 +127,12 @@ export default class Mole extends Component {
 }
 
 Mole.propTypes = {
-    isPaused: PropTypes.bool,
     level: PropTypes.number.isRequired,
+    row: PropTypes.number.isRequired,
+    col: PropTypes.number.isRequired,
+    moleState: PropTypes.oneOf(
+        Object.keys(Constants.MOLE_STATES).map((k) => Constants.MOLE_STATES[k])
+    ).isRequired,
     moleType: PropTypes.oneOf(Constants.MOLE_TYPES).isRequired,
-    onDefeat: PropTypes.func.isRequired,
-    onEvade: PropTypes.func.isRequired, // Call this when animations are done to fully remove
-    removeTimeoutMs: PropTypes.number.isRequired
+    numBops: PropTypes.number.isRequired
 }

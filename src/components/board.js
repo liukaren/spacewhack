@@ -10,38 +10,16 @@ import Actions from '../flux/actions.js'
 import { dispatch } from '../flux/dispatcher.js'
 
 export default class Board extends Component {
-    onEvade(row, col) {
-        const mole = this.props.board[row][col]
-        dispatch({
-            type: Actions.CLEAR_MOLE,
-            row, col,
-            lifeChange: mole.missedLifeValue,
-            scoreChange: 0
-        })
-    }
-
-    onDefeat(row, col) {
-        const mole = this.props.board[row][col]
-        dispatch({
-            type: Actions.CLEAR_MOLE,
-            row, col,
-            lifeChange: mole.lifeValue,
-            scoreChange: mole.scoreValue
-        })
-    }
-
     render() {
         return <View style={ styles.container }>
             { this.props.board.map((row, rowIndex) => (
                 <View style={ styles.row } key={ rowIndex }>
                     { row.map((col, colIndex) => (
                         <View style={ styles.col } key={ colIndex }>
-                            { col && <Mole moleType={ col }
-                                           isPaused={ this.props.isPaused }
-                                           level={ this.props.level }
-                                           onDefeat={ () => { this.onDefeat(rowIndex, colIndex) } }
-                                           onEvade={ () => { this.onEvade(rowIndex, colIndex) } }
-                                           removeTimeoutMs={ Constants.MOLE_DURATION_MS } /> }
+                            { col && <Mole row={ rowIndex }
+                                           col={ colIndex }
+                                           { ...this.props.board[rowIndex][colIndex] }
+                                           level={ this.props.level } /> }
                         </View>
                     )) }
                 </View>
@@ -51,8 +29,15 @@ export default class Board extends Component {
 }
 
 Board.propTypes = {
-    board: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.oneOf(Constants.MOLE_TYPES))).isRequired,
-    isPaused: PropTypes.bool,
+    board: PropTypes.arrayOf(PropTypes.arrayOf(
+        PropTypes.shape({
+            moleState: PropTypes.oneOf(
+                Object.keys(Constants.MOLE_STATES).map((k) => Constants.MOLE_STATES[k])
+            ).isRequired,
+            moleType: PropTypes.oneOf(Constants.MOLE_TYPES).isRequired,
+            numBops: PropTypes.number.isRequired
+        })
+    )).isRequired,
     level: PropTypes.number.isRequired
 }
 

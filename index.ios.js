@@ -14,7 +14,6 @@ import {
     Text,
     View
 } from 'react-native'
-import { Container } from 'flux/utils'
 
 import * as Constants from './src/constants.js'
 import * as Helpers from './src/helpers.js'
@@ -32,62 +31,38 @@ import { dispatch } from './src/flux/dispatcher.js'
 import GameStore from './src/flux/store.js'
 
 class Game extends Component {
-    static getStores() {
-        return [GameStore]
+    constructor(props) {
+        super(props)
+
+        this.state = GameStore.getState()
     }
 
-    static calculateState() {
-        return GameStore.getState()
+    componentDidMount() {
+        GameStore.addChangeListener(this._onChange.bind(this))
+    }
+
+    componentWillUnmount() {
+        GameStore.removeChangeListener(this._onChange.bind(this))
+    }
+
+    _onChange() {
+        this.setState(GameStore.getState())
     }
 
     startLevel() {
         dispatch({ type: Actions.START_LEVEL })
-        this.step()
     }
 
-    getRandomPosition() {
-        const numRows = this.state.board.length
-        const numCols = this.state.board[0].length
-        return {
-            row: Math.floor(Math.random() * numRows),
-            col: Math.floor(Math.random() * numCols)
-        }
+    onQuit() {
+        dispatch({ type: Actions.QUIT_GAME })
     }
 
-    placeRandomMole() {
-        const position = this.getRandomPosition()
-
-        if (this.state.board[position.row][position.col] !== null) {
-            // There is already something here, just skip this turn
-            return
-        }
-
-        // TODO: Filter out types that are not available in this level.
-        // Pick a random mole based on its likelihood weight.
-        const totalWeight = Constants.MOLE_TYPES.reduce((sum, moleType) => (
-            moleType.likelihoodWeight + sum
-        ), 0)
-
-        let moleType
-        const randomNum = Math.random() * totalWeight
-        for (let i = 0, accruedWeight = 0; i < Constants.MOLE_TYPES.length; i++) {
-            accruedWeight += Constants.MOLE_TYPES[i].likelihoodWeight
-            if (randomNum < accruedWeight) {
-                moleType = Constants.MOLE_TYPES[i]
-                break
-            }
-        }
-
-        dispatch({ type: Actions.PLACE_MOLE, row: position.row, col: position.col, moleType })
+    onPause() {
+        dispatch({ type: Actions.PAUSE_GAME })
     }
 
-    step() {
-        this.placeRandomMole()
-
-        const timeUntilNextStep = (Math.random() * Constants.ADD_INTERVAL_RANGE_MS) +
-            Constants.ADD_INTERVAL_MIN_MS
-        const stepTimeout = new Timer(this.step.bind(this), timeUntilNextStep)
-        dispatch({ type: Actions.SCHEDULE_STEP, stepTimeout })
+    onResume() {
+        dispatch({ type: Actions.RESUME_GAME })
     }
 
     getMainEl() {
@@ -96,10 +71,11 @@ class Game extends Component {
             <NavBar key="nav-bar"
                     isPaused={ isPaused }
                     numLives={ this.state.lives }
+                    onPause={ this.onPause.bind(this) }
+                    onResume={ this.onResume.bind(this) }
                     score={ this.state.score } />,
             <Board key="board"
                    board={ this.state.board }
-                   isPaused={ isPaused }
                    level={ this.state.level } />
         ]
 
@@ -114,7 +90,9 @@ class Game extends Component {
                 // Just add a pause overlay.
                 return gameElements.concat([
                     <PauseScreen key="pause-screen"
-                                 isSoundOn={ this.state.isSoundOn } />
+                                 isSoundOn={ this.state.isSoundOn }
+                                 onQuit={ this.onQuit.bind(this) }
+                                 onResume={ this.onResume.bind(this) } />
                 ])
             case Constants.GAME_STATES.GAME_OVER_SCREEN:
                 return <GameOverScreen />
@@ -156,8 +134,6 @@ class Game extends Component {
     }
 }
 
-const fluxContainer = Container.create(Game)
-
 const styles = StyleSheet.create({
     background: {
         flex: 1,
@@ -170,4 +146,4 @@ const styles = StyleSheet.create({
     }
 })
 
-AppRegistry.registerComponent('spacewhack', () => fluxContainer)
+AppRegistry.registerComponent('spacewhack', () => Game)

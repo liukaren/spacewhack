@@ -16,7 +16,7 @@ export default class PauseScreen extends Component {
         Alert.alert(
             'Abandon ship?', null, [
                 { text: 'Cancel', onPress: () => {}, style: 'cancel'},
-                { text: 'Quit', onPress: () => dispatch({ type: Actions.QUIT_GAME }), style: 'destructive' }
+                { text: 'Quit', onPress: this.props.onQuit, style: 'destructive' }
             ]
         )
     }
@@ -32,11 +32,11 @@ export default class PauseScreen extends Component {
                     Constants.IMG_SOUND_ON : Constants.IMG_SOUND_OFF } />
             </TouchableHighlight>
 
-            <TouchableHighlight onPress={ this.confirmQuit }>
+            <TouchableHighlight onPress={ this.confirmQuit.bind(this) }>
                 <Text style={ styles.button }>Quit Game</Text>
             </TouchableHighlight>
 
-            <TouchableHighlight onPress={ () => dispatch({ type: Actions.RESUME_GAME }) }>
+            <TouchableHighlight onPress={ this.props.onResume }>
                 <Text style={ styles.button }>Resume</Text>
             </TouchableHighlight>
         </View>
@@ -44,5 +44,7 @@ export default class PauseScreen extends Component {
 }
 
 PauseScreen.propTypes = {
-    isSoundOn: PropTypes.bool
+    isSoundOn: PropTypes.bool,
+    onResume: PropTypes.func.isRequired,
+    onQuit: PropTypes.func.isRequired
 }
