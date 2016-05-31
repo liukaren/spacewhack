@@ -5,7 +5,6 @@ import {
     TouchableHighlight,
     View
 } from 'react-native'
-import { PLANET_NAME, SHIP_NAME } from '../../constants.js'
 import styles from './styles.js'
 
 export default class LevelScreen extends Component {
@@ -14,19 +13,15 @@ export default class LevelScreen extends Component {
             <Text style={ styles.title }>Level 1</Text>
 
             <Text style={ styles.text }>
-                Space invaders are appearing through wormholes and attacking { PLANET_NAME }!
+                Defend the planet against space invaders by tapping
+                on them! We're counting on you!
             </Text>
 
             <Image source={ require('../../../images/purple.png') }
                    style={ styles.previewImage } />
 
-            <Text style={ styles.text }>
-                You are the captain of { SHIP_NAME }, here to defend your home planet
-                with your trusty mallet.
-            </Text>
-
             <TouchableHighlight onPress={ this.props.onStart }>
-                <Text style={ styles.button }>Launch</Text>
+                <Text style={ styles.button }>Start Level</Text>
             </TouchableHighlight>
         </View>
     }

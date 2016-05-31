@@ -1,9 +1,5 @@
 import Sound from 'react-native-sound'
 
-// Subject to change
-export const PLANET_NAME = 'Planet BunBun'
-export const SHIP_NAME = 'Starship Carrot'
-
 export const GAME_STATES = {
     SPLASH_SCREEN: 1,
     LEVEL_SCREEN: 2,
