@@ -152,8 +152,9 @@ function scheduleStep() {
     }
 
     // Automatically queue up the next step
-    const timeUntilNextStep = (Math.random() * Constants.ADD_INTERVAL_RANGE_MS) +
-        Constants.ADD_INTERVAL_MIN_MS
+    const currentLevel = Constants.LEVELS[state.level]
+    const stepRangeMs = currentLevel.stepMaxMs - currentLevel.stepMinMs
+    const timeUntilNextStep = (Math.random() * stepRangeMs) + currentLevel.stepMinMs
     state.stepTimeout = new Timer(scheduleStep, timeUntilNextStep)
 
     GameStore.emitChange()
