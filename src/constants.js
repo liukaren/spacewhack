@@ -125,7 +125,15 @@ export const LEVELS = [{
     moleDurationMs: 2500,
     stepMinMs: 2000,
     stepMaxMs: 3000,
-    winCondition: () => false
+    winCondition: (state) => state.numMolesShown >= 2
+}, {
+    availableMoles: [MOLE_TYPES.ENEMY, MOLE_TYPES.LIFE, MOLE_TYPES.INNOCENT, MOLE_TYPES.ENEMY_HARD],
+    numCols: 6,
+    numRows: 10,
+    moleDurationMs: 2500,
+    stepMinMs: 2000,
+    stepMaxMs: 3000,
+    winCondition: (state) => false
 }]
 
 export const INITIAL_LIVES = 3

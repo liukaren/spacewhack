@@ -14,21 +14,33 @@ export default class LevelScreen extends Component {
             case 0:
                 return [
                     <Text key="level-copy" style={ styles.text }>
-                        Defend the planet against space invaders by tapping
-                        on them! We're counting on you!
+                        Defend the planet against space invaders by tapping on them.
                     </Text>,
                     <Image key="level-image"
                            source={ Constants.IMG_ENEMY }
-                           style={ styles.previewImage } />
+                           style={ styles.previewImage } />,
+                    <Text key="level-copy2" style={ styles.text }>
+                        We're counting on you!
+                    </Text>
                 ]
             case 1:
                 return [
                     <Text key="level-copy" style={ styles.text }>
-                        Great work! Keep going, but this time avoid the
+                        Great work! The evacuation has begun. Avoid hitting the
                         innocent citizens of your planet!
                     </Text>,
                     <Image key="level-image"
                            source={ Constants.IMG_INNOCENT }
+                           style={ styles.previewImage } />
+                ]
+            case 2:
+                return [
+                    <Text key="level-copy" style={ styles.text }>
+                        Another swarm has arrived! These enemies need two taps
+                        to be defeated!
+                    </Text>,
+                    <Image key="level-image"
+                           source={ Constants.IMG_ENEMY_HARD }
                            style={ styles.previewImage } />
                 ]
         }
