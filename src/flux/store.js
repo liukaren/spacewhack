@@ -7,9 +7,7 @@ import * as Constants from '../constants.js'
 import * as Helpers from '../helpers.js'
 import Timer from '../timer.js'
 
-function getResetState() {
-    const level = 0
-
+function getEmptyBoard(level) {
     // Initialize an empty board of `null`s
     const board = []
     const { numCols, numRows } = Constants.LEVELS[level]
@@ -20,14 +18,31 @@ function getResetState() {
         }
         board.push(row)
     }
+    return board
+}
 
+function getResetLevelState(currentState, level) {
     return {
-        board,
+        board: getEmptyBoard(level),
+        damageAnimValue: new Animated.Value(0),
+        gameState: Constants.GAME_STATES.LEVEL_SCREEN,
+        level,
+        lives: Constants.INITIAL_LIVES,
+        score: currentState.score,
+        numMolesShown: 0
+    }
+}
+
+function getResetGameState() {
+    const level = 0
+    return {
+        board: getEmptyBoard(level),
+        damageAnimValue: new Animated.Value(0),
+        gameState: Constants.GAME_STATES.SPLASH_SCREEN,
         level,
         lives: Constants.INITIAL_LIVES,
         score: 0,
-        gameState: Constants.GAME_STATES.SPLASH_SCREEN,
-        damageAnimValue: new Animated.Value(0)
+        numMolesShown: 0
     }
 }
 
@@ -105,7 +120,7 @@ function getInitialMoleData(row, col, moleType) {
 
 const CHANGE_EVENT = 'change'
 
-let state = Object.assign({}, getResetState(), { isSoundOn: true })
+let state = Object.assign({}, getResetGameState(), { isSoundOn: true })
 
 const GameStore = Object.assign({}, Events.EventEmitter.prototype, {
     emitChange() {
@@ -133,6 +148,7 @@ function scheduleStep() {
         const moleType = getRandomMole()
         const initialMoleData = getInitialMoleData(position.row, position.col, moleType)
         state.board[position.row][position.col] = initialMoleData
+        state.numMolesShown++
     }
 
     // Automatically queue up the next step
@@ -170,6 +186,8 @@ function bopMole(row, col) {
             clearMole(row, col, moleData.moleType.lifeValue, moleData.moleType.scoreValue)
             GameStore.emitChange()
         })
+
+        advanceLevelIfWon()
     } else {
         // When the animation is finished, reset state
         moleData.moleState = Constants.MOLE_STATES.BOPPED
@@ -177,6 +195,14 @@ function bopMole(row, col) {
             moleData.moleState = Constants.MOLE_STATES.DEFAULT
             GameStore.emitChange()
         })
+    }
+}
+
+function advanceLevelIfWon() {
+    if (Constants.LEVELS[state.level].winCondition(state)) {
+        pauseGame()
+        state = getResetLevelState(state, state.level + 1)
+        GameStore.emitChange()
     }
 }
 
@@ -237,7 +263,7 @@ Dispatcher.register((action) => {
             break
         case Actions.QUIT_GAME:
             stopGame()
-            state = getResetState()
+            state = getResetGameState()
             break
         case Actions.GAME_OVER:
             gameOver()

@@ -52,7 +52,13 @@ export const MOLE_STATES = {
 export const LEVELS = [{
     numCols: 3,
     numRows: 5,
-    moleDurationMs: 2500 // How long a mole stays after it is added
+    moleDurationMs: 2500, // How long a mole stays after it is added
+    winCondition: (state) => state.numMolesShown === 1
+}, {
+    numCols: 6,
+    numRows: 10,
+    moleDurationMs: 2500,
+    winCondition: () => false
 }]
 
 export const INITIAL_LIVES = 3
@@ -104,3 +110,5 @@ export const SOUNDS = {
 export const IMG_BOMB = require('../images/bomb.png')
 export const IMG_SOUND_ON = require('../images/soundOn.png')
 export const IMG_SOUND_OFF = require('../images/soundOff.png')
+export const IMG_ENEMY = require('../images/purple.png')
+export const IMG_INNOCENT = require('../images/bunny.png')
