@@ -7,6 +7,10 @@ import * as Constants from '../constants.js'
 import * as Helpers from '../helpers.js'
 import Timer from '../timer.js'
 
+const CHANGE_EVENT = 'change'
+
+let state = Object.assign({}, getResetGameState(), { isSoundOn: true })
+
 function getEmptyBoard(level) {
     // Initialize an empty board of `null`s
     const board = []
@@ -19,6 +23,10 @@ function getEmptyBoard(level) {
         board.push(row)
     }
     return board
+}
+
+function getCurrentLevel() {
+    return Constants.LEVELS[state.level]
 }
 
 function getResetLevelState(currentState, level) {
@@ -56,18 +64,19 @@ function getRandomPosition(board) {
 }
 
 function getRandomMole() {
-    // TODO: Filter out types that are not available in this level.
+    const availableMoles = getCurrentLevel().availableMoles
+
     // Pick a random mole based on its likelihood weight.
-    const totalWeight = Constants.MOLE_TYPES.reduce((sum, moleType) => (
+    const totalWeight = availableMoles.reduce((sum, moleType) => (
         moleType.likelihoodWeight + sum
     ), 0)
 
     let moleType
     const randomNum = Math.random() * totalWeight
-    for (let i = 0, accruedWeight = 0; i < Constants.MOLE_TYPES.length; i++) {
-        accruedWeight += Constants.MOLE_TYPES[i].likelihoodWeight
+    for (let i = 0, accruedWeight = 0; i < availableMoles.length; i++) {
+        accruedWeight += availableMoles[i].likelihoodWeight
         if (randomNum < accruedWeight) {
-            return Constants.MOLE_TYPES[i]
+            return availableMoles[i]
         }
     }
 }
@@ -113,14 +122,10 @@ function getInitialMoleData(row, col, moleType) {
         })
 
         GameStore.emitChange()
-    }, Constants.LEVELS[state.level].moleDurationMs)
+    }, getCurrentLevel().moleDurationMs)
 
     return moleData
 }
-
-const CHANGE_EVENT = 'change'
-
-let state = Object.assign({}, getResetGameState(), { isSoundOn: true })
 
 const GameStore = Object.assign({}, Events.EventEmitter.prototype, {
     emitChange() {
@@ -152,9 +157,9 @@ function scheduleStep() {
     }
 
     // Check if we've already won. Don't bother queueing a step if so
-    if (!Constants.LEVELS[state.level].winCondition(state)) {
+    if (!getCurrentLevel().winCondition(state)) {
         // Automatically queue up the next step
-        const currentLevel = Constants.LEVELS[state.level]
+        const currentLevel = getCurrentLevel()
         const stepRangeMs = currentLevel.stepMaxMs - currentLevel.stepMinMs
         const timeUntilNextStep = (Math.random() * stepRangeMs) + currentLevel.stepMinMs
         state.stepTimeout = new Timer(scheduleStep, timeUntilNextStep)
@@ -235,7 +240,7 @@ function clearMole(row, col, lifeChange, scoreChange) {
     state.lives = Math.min(state.lives + lifeChange, Constants.MAX_LIVES)
     state.score = state.score + scoreChange
 
-    const won = Constants.LEVELS[state.level].winCondition(state)
+    const won = getCurrentLevel().winCondition(state)
 
     // If the player sustained damage, animate the impact.
     if (lifeChange < 0) {

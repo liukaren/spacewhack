@@ -15,3 +15,7 @@ export function playSound(soundFile, loop) {
     if (loop) { soundFile.setNumberOfLoops(-1) }
     soundFile.play()
 }
+
+export function objValues(obj) {
+    return Object.keys(obj).map((k) => obj[k])
+}

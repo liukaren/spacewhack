@@ -4,6 +4,7 @@ import {
     View
 } from 'react-native'
 import * as Constants from '../constants.js'
+import * as Helpers from '../helpers.js'
 import Mole from './mole.js'
 
 import Actions from '../flux/actions.js'
@@ -29,15 +30,10 @@ export default class Board extends Component {
 }
 
 Board.propTypes = {
-    board: PropTypes.arrayOf(PropTypes.arrayOf(
-        PropTypes.shape({
-            moleState: PropTypes.oneOf(
-                Object.keys(Constants.MOLE_STATES).map((k) => Constants.MOLE_STATES[k])
-            ).isRequired,
-            moleType: PropTypes.oneOf(Constants.MOLE_TYPES).isRequired,
-            numBops: PropTypes.number.isRequired
-        })
-    )).isRequired,
+    board: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.shape({
+        moleState: PropTypes.oneOf(Helpers.objValues(Constants.MOLE_STATES)).isRequired,
+        moleType: PropTypes.oneOf(Helpers.objValues(Constants.MOLE_TYPES)).isRequired
+    }))).isRequired,
     level: PropTypes.number.isRequired
 }
 

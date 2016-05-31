@@ -130,9 +130,6 @@ Mole.propTypes = {
     level: PropTypes.number.isRequired,
     row: PropTypes.number.isRequired,
     col: PropTypes.number.isRequired,
-    moleState: PropTypes.oneOf(
-        Object.keys(Constants.MOLE_STATES).map((k) => Constants.MOLE_STATES[k])
-    ).isRequired,
-    moleType: PropTypes.oneOf(Constants.MOLE_TYPES).isRequired,
-    numBops: PropTypes.number.isRequired
+    moleState: PropTypes.oneOf(Helpers.objValues(Constants.MOLE_STATES)).isRequired,
+    moleType: PropTypes.oneOf(Helpers.objValues(Constants.MOLE_TYPES)).isRequired
 }
