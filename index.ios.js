@@ -49,30 +49,14 @@ class Game extends Component {
         this.setState(GameStore.getState())
     }
 
-    startLevel() {
-        dispatch({ type: Actions.START_LEVEL })
-    }
-
-    onQuit() {
-        dispatch({ type: Actions.QUIT_GAME })
-    }
-
-    onPause() {
-        dispatch({ type: Actions.PAUSE_GAME })
-    }
-
-    onResume() {
-        dispatch({ type: Actions.RESUME_GAME })
-    }
-
     getMainEl() {
         const isPaused = this.state.gameState === Constants.GAME_STATES.PAUSE_SCREEN
         const gameElements = [
             <NavBar key="nav-bar"
                     isPaused={ isPaused }
                     numLives={ this.state.lives }
-                    onPause={ this.onPause.bind(this) }
-                    onResume={ this.onResume.bind(this) }
+                    onPause={ () => dispatch({ type: Actions.PAUSE_GAME }) }
+                    onResume={ () => dispatch({ type: Actions.RESUME_GAME }) }
                     score={ this.state.score } />,
             <Board key="board"
                    board={ this.state.board }
@@ -84,15 +68,15 @@ class Game extends Component {
                 return <SplashScreen isSoundOn={ this.state.isSoundOn } />
             case Constants.GAME_STATES.LEVEL_SCREEN:
                 return <LevelScreen level={ this.state.level }
-                                    onStart={ this.startLevel.bind(this) } />
+                                    onStart={ () => dispatch({ type: Actions.START_LEVEL }) } />
             case Constants.GAME_STATES.PAUSE_SCREEN:
                 // Keep all the game elements so we don't re-animate unnecessarily.
                 // Just add a pause overlay.
                 return gameElements.concat([
                     <PauseScreen key="pause-screen"
                                  isSoundOn={ this.state.isSoundOn }
-                                 onQuit={ this.onQuit.bind(this) }
-                                 onResume={ this.onResume.bind(this) } />
+                                 onQuit={ () => dispatch({ type: Actions.QUIT_GAME }) }
+                                 onResume={ () => dispatch({ type: Actions.RESUME_GAME }) } />
                 ])
             case Constants.GAME_STATES.GAME_OVER_SCREEN:
                 return <GameOverScreen />
