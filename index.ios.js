@@ -108,7 +108,7 @@ class Game extends Component {
             }]} pointerEvents='none' />
 
         return (
-            <Image source={ require('./images/space.png') }
+            <Image source={ Constants.IMG_BACKGROUND }
                    style={ styles.background }>
                 <StatusBar hidden />
                 { this.getMainEl() }

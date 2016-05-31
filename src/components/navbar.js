@@ -39,7 +39,7 @@ export default class NavBar extends Component {
             const isMostRecent = i === this.props.numLives - 1
             lifeEls.push(
                 <Animated.Image key={ i }
-                                source={ require('../../images/heart.png') }
+                                source={ Constants.IMG_LIFE }
                                 style={ [styles.lifeImage, isMostRecent && {
                                     transform: [{ scale: this.lifeAnimValue }]
                                 }] } />
@@ -55,7 +55,7 @@ export default class NavBar extends Component {
             </View>
             <View style={ styles.pauseContainer }>
                 <TouchableWithoutFeedback onPress={ this.onTogglePause.bind(this) }>
-                    <Image source={ require('../../images/pause.png') }
+                    <Image source={ Constants.IMG_PAUSE }
                            style={ styles.pauseButton } />
                 </TouchableWithoutFeedback>
             </View>

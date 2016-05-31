@@ -47,7 +47,7 @@ export default class Mole extends Component {
                 })
             }}>
             <View style={{ width: tileWidth, height: tileHeight }}>
-                <Animated.Image source={ require('../../images/wormhole.png') }
+                <Animated.Image source={ Constants.IMG_WORMHOLE }
                                 style={ Object.assign({}, imageStyle, {
                                     opacity: this.props.wormHoleAnimValue.interpolate({
                                         inputRange: [0, 0.8, 1],
