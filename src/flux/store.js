@@ -98,7 +98,7 @@ function getInitialMoleData(row, col, moleType) {
         })
 
         GameStore.emitChange()
-    }, Constants.MOLE_DURATION_MS) // TODO: make this variable
+    }, Constants.LEVELS[state.level].moleDurationMs)
 
     return moleData
 }

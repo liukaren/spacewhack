@@ -51,7 +51,8 @@ export const MOLE_STATES = {
 
 export const LEVELS = [{
     numCols: 3,
-    numRows: 5
+    numRows: 5,
+    moleDurationMs: 2500 // How long a mole stays after it is added
 }]
 
 export const INITIAL_LIVES = 3
@@ -64,7 +65,6 @@ export const ADD_INTERVAL_MIN_MS = 2000
 const ADD_INTERVAL_MAX_MS = 3000
 export const ADD_INTERVAL_RANGE_MS = ADD_INTERVAL_MAX_MS - ADD_INTERVAL_MIN_MS
 
-export const MOLE_DURATION_MS = 2500 // How long a mole stays after it is added
 export const MOLE_ANIMATION_MS = 500 // How long to animate entering / exiting
 export const WORMHOLE_ANIMATION_MS = 1000 // How long to animate the wormhole opening and closing
 export const MOLE_DELAY_MS = 500 // How long to wait between opening the wormhole and showing the mole
