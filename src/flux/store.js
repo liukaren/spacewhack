@@ -148,14 +148,17 @@ function scheduleStep() {
         const moleType = getRandomMole()
         const initialMoleData = getInitialMoleData(position.row, position.col, moleType)
         state.board[position.row][position.col] = initialMoleData
-        state.numMolesShown++
+        state.numMolesShown++ // TODO: Don't count powerups (and innocents?) as moles
     }
 
-    // Automatically queue up the next step
-    const currentLevel = Constants.LEVELS[state.level]
-    const stepRangeMs = currentLevel.stepMaxMs - currentLevel.stepMinMs
-    const timeUntilNextStep = (Math.random() * stepRangeMs) + currentLevel.stepMinMs
-    state.stepTimeout = new Timer(scheduleStep, timeUntilNextStep)
+    // Check if we've already won. Don't bother queueing a step if so
+    if (!Constants.LEVELS[state.level].winCondition(state)) {
+        // Automatically queue up the next step
+        const currentLevel = Constants.LEVELS[state.level]
+        const stepRangeMs = currentLevel.stepMaxMs - currentLevel.stepMinMs
+        const timeUntilNextStep = (Math.random() * stepRangeMs) + currentLevel.stepMinMs
+        state.stepTimeout = new Timer(scheduleStep, timeUntilNextStep)
+    }
 
     GameStore.emitChange()
 }
@@ -187,8 +190,6 @@ function bopMole(row, col) {
             clearMole(row, col, moleData.moleType.lifeValue, moleData.moleType.scoreValue)
             GameStore.emitChange()
         })
-
-        advanceLevelIfWon()
     } else {
         // When the animation is finished, reset state
         moleData.moleState = Constants.MOLE_STATES.BOPPED
@@ -199,23 +200,21 @@ function bopMole(row, col) {
     }
 }
 
-function advanceLevelIfWon() {
-    if (Constants.LEVELS[state.level].winCondition(state)) {
-        pauseGame()
-        state = getResetLevelState(state, state.level + 1)
-        GameStore.emitChange()
-    }
+function advanceLevel() {
+    pauseGame()
+    state = getResetLevelState(state, state.level + 1)
+    GameStore.emitChange()
 }
 
 function pauseGame() {
-    state.stepTimeout.pause()
+    state.stepTimeout && state.stepTimeout.pause()
     state.board.map((row) => {
         row.map((col) => col && col.removeTimeout.pause())
     })
 }
 
 function resumeGame() {
-    state.stepTimeout.resume()
+    state.stepTimeout && state.stepTimeout.resume()
     state.board.map((row) => {
         row.map((col) => col && col.removeTimeout.resume())
     })
@@ -236,15 +235,18 @@ function clearMole(row, col, lifeChange, scoreChange) {
     state.lives = Math.min(state.lives + lifeChange, Constants.MAX_LIVES)
     state.score = state.score + scoreChange
 
+    const won = Constants.LEVELS[state.level].winCondition(state)
+
     // If the player sustained damage, animate the impact.
     if (lifeChange < 0) {
         state.damageAnimValue = new Animated.Value(0)
         Animated.timing(state.damageAnimValue,
-            { toValue: 1, easing: Easing.easeOut }).start()
-    }
-
-    if (state.lives === 0) {
-        gameOver()
+            { toValue: 1, easing: Easing.easeOut }).start(() => {
+                if (state.lives === 0) { gameOver() }
+                if (won) { advanceLevel() }
+            })
+    } else {
+        if (won) { advanceLevel() }
     }
 }
 
