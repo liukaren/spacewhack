@@ -9,6 +9,8 @@ import {
 } from 'react-native'
 
 import * as Constants from '../constants.js'
+import Actions from '../flux/actions.js'
+import { dispatch } from '../flux/dispatcher.js'
 
 export default class NavBar extends Component {
     constructor(props) {
@@ -17,11 +19,7 @@ export default class NavBar extends Component {
     }
 
     onTogglePause() {
-        if (this.props.isPaused) {
-            this.props.onResume()
-        } else {
-            this.props.onPause()
-        }
+        dispatch({ type: (this.props.isPaused ? Actions.RESUME_GAME : Actions.PAUSE_GAME) })
     }
 
     componentWillReceiveProps(nextProps) {
@@ -65,8 +63,6 @@ export default class NavBar extends Component {
 
 NavBar.propTypes = {
     numLives: PropTypes.number.isRequired,
-    onPause: PropTypes.func.isRequired,
-    onResume: PropTypes.func.isRequired,
     score: PropTypes.number.isRequired
 }
 

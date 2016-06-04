@@ -5,7 +5,10 @@ import {
     TouchableHighlight,
     View
 } from 'react-native'
+
 import * as Constants from '../../constants.js'
+import Actions from '../../flux/actions.js'
+import { dispatch } from '../../flux/dispatcher.js'
 import styles from './styles.js'
 
 export default class LevelScreen extends Component {
@@ -52,7 +55,7 @@ export default class LevelScreen extends Component {
 
             { this.getLevelContents() }
 
-            <TouchableHighlight onPress={ this.props.onStart }>
+            <TouchableHighlight onPress={ () => dispatch({ type: Actions.START_LEVEL }) }>
                 <Text style={ styles.button }>Start Level</Text>
             </TouchableHighlight>
         </View>
@@ -60,6 +63,5 @@ export default class LevelScreen extends Component {
 }
 
 LevelScreen.propTypes = {
-    onStart: PropTypes.func.isRequired,
     level: PropTypes.number.isRequired
 }

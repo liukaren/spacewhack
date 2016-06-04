@@ -6,17 +6,22 @@ import {
     TouchableHighlight,
     View
 } from 'react-native'
-import styles from './styles.js'
+
 import * as Constants from '../../constants.js'
 import Actions from '../../flux/actions.js'
 import { dispatch } from '../../flux/dispatcher.js'
+import styles from './styles.js'
 
 export default class PauseScreen extends Component {
     confirmQuit() {
         Alert.alert(
             'Abandon ship?', null, [
                 { text: 'Cancel', onPress: () => {}, style: 'cancel'},
-                { text: 'Quit', onPress: this.props.onQuit, style: 'destructive' }
+                {
+                    text: 'Quit',
+                    onPress: () => dispatch({ type: Actions.QUIT_GAME }),
+                    style: 'destructive'
+                }
             ]
         )
     }
@@ -36,7 +41,7 @@ export default class PauseScreen extends Component {
                 <Text style={ styles.button }>Quit Game</Text>
             </TouchableHighlight>
 
-            <TouchableHighlight onPress={ this.props.onResume }>
+            <TouchableHighlight onPress={ () => dispatch({ type: Actions.RESUME_GAME }) }>
                 <Text style={ styles.button }>Resume</Text>
             </TouchableHighlight>
         </View>
@@ -44,7 +49,5 @@ export default class PauseScreen extends Component {
 }
 
 PauseScreen.propTypes = {
-    isSoundOn: PropTypes.bool,
-    onResume: PropTypes.func.isRequired,
-    onQuit: PropTypes.func.isRequired
+    isSoundOn: PropTypes.bool
 }

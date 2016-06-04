@@ -26,8 +26,6 @@ import LevelScreen from './src/components/screens/level.js'
 import PauseScreen from './src/components/screens/pause.js'
 import SplashScreen from './src/components/screens/splash.js'
 
-import Actions from './src/flux/actions.js'
-import { dispatch } from './src/flux/dispatcher.js'
 import GameStore from './src/flux/store.js'
 
 class Game extends Component {
@@ -55,8 +53,6 @@ class Game extends Component {
             <NavBar key="nav-bar"
                     isPaused={ isPaused }
                     numLives={ this.state.lives }
-                    onPause={ () => dispatch({ type: Actions.PAUSE_GAME }) }
-                    onResume={ () => dispatch({ type: Actions.RESUME_GAME }) }
                     score={ this.state.score } />,
             <Board key="board"
                    board={ this.state.board }
@@ -67,16 +63,13 @@ class Game extends Component {
             case Constants.GAME_STATES.SPLASH_SCREEN:
                 return <SplashScreen isSoundOn={ this.state.isSoundOn } />
             case Constants.GAME_STATES.LEVEL_SCREEN:
-                return <LevelScreen level={ this.state.level }
-                                    onStart={ () => dispatch({ type: Actions.START_LEVEL }) } />
+                return <LevelScreen level={ this.state.level } />
             case Constants.GAME_STATES.PAUSE_SCREEN:
                 // Keep all the game elements so we don't re-animate unnecessarily.
                 // Just add a pause overlay.
                 return gameElements.concat([
                     <PauseScreen key="pause-screen"
-                                 isSoundOn={ this.state.isSoundOn }
-                                 onQuit={ () => dispatch({ type: Actions.QUIT_GAME }) }
-                                 onResume={ () => dispatch({ type: Actions.RESUME_GAME }) } />
+                                 isSoundOn={ this.state.isSoundOn } />
                 ])
             case Constants.GAME_STATES.GAME_OVER_SCREEN:
                 return <GameOverScreen />
