@@ -233,6 +233,7 @@ function stopGame() {
 function gameOver() {
     stopGame()
     state.gameState = Constants.GAME_STATES.GAME_OVER_SCREEN
+    GameStore.emitChange()
 }
 
 function clearMole(row, col, lifeChange, scoreChange) {
@@ -272,9 +273,6 @@ Dispatcher.register((action) => {
         case Actions.QUIT_GAME:
             stopGame()
             state = getResetGameState()
-            break
-        case Actions.GAME_OVER:
-            gameOver()
             break
         case Actions.START_LEVEL:
             state.gameState = Constants.GAME_STATES.IN_GAME
