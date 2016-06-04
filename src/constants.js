@@ -117,7 +117,7 @@ export const LEVELS = [{
     moleDurationMs: 2500, // How long a mole stays after it is added
     stepMinMs: 2000,
     stepMaxMs: 3000,
-    winCondition: (state) => state.numMolesShown >= 1
+    winCondition: (state) => state.numMolesShown >= 8
 }, {
     availableMoles: [MOLE_TYPES.ENEMY, MOLE_TYPES.LIFE, MOLE_TYPES.INNOCENT],
     numCols: 6,
@@ -125,7 +125,7 @@ export const LEVELS = [{
     moleDurationMs: 2500,
     stepMinMs: 2000,
     stepMaxMs: 3000,
-    winCondition: (state) => state.numMolesShown >= 2
+    winCondition: (state) => state.numMolesShown >= 12
 }, {
     availableMoles: [MOLE_TYPES.ENEMY, MOLE_TYPES.LIFE, MOLE_TYPES.INNOCENT, MOLE_TYPES.ENEMY_HARD],
     numCols: 6,
