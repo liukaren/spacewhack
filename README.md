@@ -12,3 +12,4 @@ A space-themed whack-a-mole game built in React Native.
 * Space monster, bomb, and heart images sourced and edited from [EmojiOne](http://emojione.com)
 * Innocent bunny image by [Kathy](https://twitter.com/pifafu)
 * Background music by [subdream](http://opengameart.org/content/space-philately-seamless-loop)
+* Intro screen planet and asteroid images from [pudman](http://opengameart.org/content/2d-space-shooter-assets)
