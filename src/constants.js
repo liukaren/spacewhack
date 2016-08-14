@@ -26,6 +26,7 @@ export const MOLE_DELAY_MS = 500 // How long to wait between opening the wormhol
 // -------- DRAWING --------
 
 export const GUTTER = 10 // TODO: make this responsive?
+export const SPLASH_FONT = 'PLENTO'
 export const MAIN_FONT = 'Avenir Next'
 export const MOLE_SHRINK_SCALE = 0.5
 export const NAV_HEIGHT = 40 // TODO: make this responsive?

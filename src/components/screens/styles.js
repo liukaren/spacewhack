@@ -22,12 +22,6 @@ export default StyleSheet.create({
         top: Constants.NAV_HEIGHT,
         opacity: 0.7
     },
-    splashText: {
-        color: 'white',
-        fontFamily: Constants.MAIN_FONT,
-        fontSize: 40,
-        fontWeight: 'bold'
-    },
     title: {
         color: 'white',
         fontFamily: Constants.MAIN_FONT,

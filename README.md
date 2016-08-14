@@ -13,3 +13,4 @@ A space-themed whack-a-mole game built in React Native.
 * Innocent bunny image by [Kathy](https://twitter.com/pifafu)
 * Background music by [subdream](http://opengameart.org/content/space-philately-seamless-loop)
 * Intro screen planet and asteroid images from [pudman](http://opengameart.org/content/2d-space-shooter-assets)
+* Title font is [Plento](https://www.behance.net/gallery/37385151/PLENTO-Free-typeface)

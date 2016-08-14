@@ -41,7 +41,7 @@ export default class SplashScreen extends Component {
 
     render() {
         return <View style={ styles.screenBg }>
-            <Text style={ styles.splashText }>Space Whack</Text>
+            <Text style={ splashStyles.splashText }>Space Whack</Text>
 
             <View style={ splashStyles.imgContainer }>
                 <View style={ splashStyles.spacer } />
@@ -79,6 +79,11 @@ export default class SplashScreen extends Component {
 }
 
 const splashStyles = StyleSheet.create({
+    splashText: {
+        color: 'white',
+        fontFamily: Constants.SPLASH_FONT,
+        fontSize: 50,
+    },
     imgContainer: {
         alignSelf: 'stretch',
         flexDirection: 'row',

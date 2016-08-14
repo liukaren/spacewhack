@@ -26,6 +26,7 @@
 		2821785E1CF8E962001CC5EB /* subdream.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2821785C1CF8E962001CC5EB /* subdream.mp3 */; };
 		286763671CF23C6E0071D03D /* libRNSound.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 286763661CF23C450071D03D /* libRNSound.a */; };
 		2867636B1CF2B22E0071D03D /* pop.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 2867636A1CF2B22E0071D03D /* pop.mp3 */; };
+		28C622711D601D7700895065 /* PLENTO-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 28C622701D601D7700895065 /* PLENTO-Regular.ttf */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 /* End PBXBuildFile section */
 
@@ -141,6 +142,7 @@
 		2821785C1CF8E962001CC5EB /* subdream.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = subdream.mp3; sourceTree = "<group>"; };
 		286763571CF23C450071D03D /* RNSound.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNSound.xcodeproj; path = "../node_modules/react-native-sound/RNSound.xcodeproj"; sourceTree = "<group>"; };
 		2867636A1CF2B22E0071D03D /* pop.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = pop.mp3; sourceTree = "<group>"; };
+		28C622701D601D7700895065 /* PLENTO-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PLENTO-Regular.ttf"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -250,6 +252,7 @@
 		13B07FAE1A68108700A75B9A /* spacewhack */ = {
 			isa = PBXGroup;
 			children = (
+				28C622701D601D7700895065 /* PLENTO-Regular.ttf */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -547,6 +550,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				28C622711D601D7700895065 /* PLENTO-Regular.ttf in Resources */,
 				2821784F1CF8E582001CC5EB /* bomb.wav in Resources */,
 				2821785D1CF8E962001CC5EB /* menu.mp3 in Resources */,
 				2867636B1CF2B22E0071D03D /* pop.mp3 in Resources */,
