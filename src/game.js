@@ -16,6 +16,7 @@ import GameOverScreen from './components/screens/gameOver.js'
 import LevelScreen from './components/screens/level.js'
 import PauseScreen from './components/screens/pause.js'
 import SplashScreen from './components/screens/splash.js'
+import WinScreen from './components/screens/win.js'
 
 import GameStore from './flux/store.js'
 
@@ -64,6 +65,8 @@ export default class Game extends Component {
                 ])
             case Constants.GAME_STATES.GAME_OVER_SCREEN:
                 return <GameOverScreen />
+            case Constants.GAME_STATES.WIN_SCREEN:
+                return <WinScreen />
             default:
                 return <Animated.View style={[ Constants.POSITION_FILL, {
                     transform: [{

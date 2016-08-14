@@ -7,7 +7,8 @@ export const GAME_STATES = {
     LEVEL_SCREEN: 2,
     IN_GAME: 3,
     PAUSE_SCREEN: 4,
-    GAME_OVER_SCREEN: 5
+    GAME_OVER_SCREEN: 5,
+    WIN_SCREEN: 6
 }
 
 export const MOLE_STATES = {

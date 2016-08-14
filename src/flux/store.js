@@ -278,7 +278,12 @@ function bopMole(row, col) {
 
 function advanceLevel() {
     pauseGame()
-    state = getResetLevelState(state, state.level + 1)
+    if (state.level + 1 >= Constants.LEVELS.length) {
+        stopGame()
+        state.gameState = Constants.GAME_STATES.WIN_SCREEN
+    } else {
+        state = getResetLevelState(state, state.level + 1)
+    }
     GameStore.emitChange()
 }
 
