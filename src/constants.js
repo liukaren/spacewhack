@@ -62,8 +62,11 @@ export const IMG_ENEMY = require('../images/purple.png')
 export const IMG_ENEMY_BOPPED = require('../images/purpleBopped.png')
 export const IMG_ENEMY_HARD = require('../images/yellow.png')
 export const IMG_ENEMY_HARD_BOPPED = require('../images/yellowBopped.png')
+export const IMG_ENEMY_NUMBER = require('../images/pink.png')
+export const IMG_ENEMY_NUMBER_BOPPED = require('../images/pinkBopped.png')
 export const IMG_INNOCENT = require('../images/bunny.png')
 export const IMG_INNOCENT_BOPPED = require('../images/bunnyBopped.png')
+export const IMG_SATELLITE = require('../images/satellite.png')
 export const IMG_LIFE = require('../images/heart.png')
 export const IMG_PAUSE = require('../images/pause.png')
 export const IMG_PLANET = require('../images/planet.png')
@@ -110,7 +113,30 @@ export const MOLE_TYPES = {
         likelihoodWeight: 0.2,
         missedLifeValue: 0,
         scoreValue: 0
-    }
+    },
+
+    NUMBER: {
+        image: IMG_SATELLITE,
+        boppedImage: IMG_SATELLITE,
+        bopsNeeded: 1,
+        lifeValue: 0,
+        likelihoodWeight: 1,
+        missedLifeValue: 0,
+        scoreValue: 0
+    },
+
+    // Only the last numbered mole counts for anything. If missed, it damages
+    // the player, if hit, it awards points. However, numbered moles can only
+    // be hit in order.
+    NUMBER_LAST: {
+        image: IMG_ENEMY_NUMBER,
+        boppedImage: IMG_ENEMY_NUMBER_BOPPED,
+        bopsNeeded: 1,
+        lifeValue: 0,
+        likelihoodWeight: 1,
+        missedLifeValue: -1,
+        scoreValue: 100,
+    },
 }
 
 export const LEVELS = [{
@@ -119,24 +145,36 @@ export const LEVELS = [{
     numRows: 5,
     moleDurationMs: 2500, // How long a mole stays after it is added
     stepMinMs: 2000,
-    stepMaxMs: 3000,
+    stepMaxMs: 2500,
     winCondition: (state) => state.numMolesShown >= 8
 }, {
     availableMoles: [MOLE_TYPES.ENEMY, MOLE_TYPES.LIFE, MOLE_TYPES.INNOCENT],
     numCols: 6,
     numRows: 10,
     moleDurationMs: 2500,
-    stepMinMs: 2000,
-    stepMaxMs: 3000,
+    stepMinMs: 1000,
+    stepMaxMs: 2000,
     winCondition: (state) => state.numMolesShown >= 12
 }, {
-    availableMoles: [MOLE_TYPES.ENEMY, MOLE_TYPES.LIFE, MOLE_TYPES.INNOCENT, MOLE_TYPES.ENEMY_HARD],
+    availableMoles: [
+        MOLE_TYPES.ENEMY, MOLE_TYPES.LIFE, MOLE_TYPES.INNOCENT, MOLE_TYPES.ENEMY_HARD
+    ],
     numCols: 6,
     numRows: 10,
     moleDurationMs: 2500,
-    stepMinMs: 2000,
-    stepMaxMs: 3000,
-    winCondition: (state) => false
+    stepMinMs: 1000,
+    stepMaxMs: 2000,
+    winCondition: (state) => state.numMolesShown >= 12
+}, {
+    availableMoles: [ // NOTE: unused, just for documentation
+        MOLE_TYPES.NUMBER, MOLE_TYPES.NUMBER_LAST
+    ],
+    numCols: 3,
+    numRows: 3,
+    moleDurationMs: 6000,
+    stepMinMs: 7000,
+    stepMaxMs: 7000,
+    winCondition: (state) => state.numWavesDefeated >= 3
 }]
 
 export const INITIAL_LIVES = 3

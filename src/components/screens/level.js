@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react'
 import {
     Image,
+    StyleSheet,
     Text,
     TouchableHighlight,
     View
@@ -46,6 +47,20 @@ export default class LevelScreen extends Component {
                            source={ Constants.IMG_ENEMY_HARD }
                            style={ styles.previewImage } />
                 ]
+            case 3:
+                return [
+                    <Text key="level-copy" style={ styles.text }>
+                        This enemy has surrounded itself with defenses! You
+                        must destroy the satellites in number order before you
+                        can defeat it!
+                    </Text>,
+                    <View key="level-image" style={ levelStyles.imageRow }>
+                        <Image source={ Constants.IMG_ENEMY_NUMBER }
+                               style={ styles.previewImage } />
+                        <Image source={ Constants.IMG_SATELLITE }
+                               style={ styles.previewImage } />
+                    </View>
+                ]
         }
     }
 
@@ -61,6 +76,12 @@ export default class LevelScreen extends Component {
         </View>
     }
 }
+
+const levelStyles = StyleSheet.create({
+    imageRow: {
+        flexDirection: 'row',
+    },
+});
 
 LevelScreen.propTypes = {
     level: PropTypes.number.isRequired

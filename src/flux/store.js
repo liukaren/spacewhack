@@ -8,8 +8,29 @@ import * as Helpers from '../helpers.js'
 import Timer from '../timer.js'
 
 const CHANGE_EVENT = 'change'
+const NUMBER_LEVEL = 3
 
 let state = Object.assign({}, getResetGameState(), { isSoundOn: true })
+
+// http://stackoverflow.com/questions/2450954
+function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex)
+        currentIndex -= 1
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex]
+        array[currentIndex] = array[randomIndex]
+        array[randomIndex] = temporaryValue
+    }
+
+    return array
+}
 
 function getEmptyBoard(level) {
     // Initialize an empty board of `null`s
@@ -37,7 +58,8 @@ function getResetLevelState(currentState, level) {
         level,
         lives: Constants.INITIAL_LIVES,
         score: currentState.score,
-        numMolesShown: 0
+        numMolesShown: 0,
+        numWavesDefeated: 0,
     }
 }
 
@@ -50,7 +72,8 @@ function getResetGameState() {
         level,
         lives: Constants.INITIAL_LIVES,
         score: 0,
-        numMolesShown: 0
+        numMolesShown: 0,
+        numWavesDefeated: 0,
     }
 }
 
@@ -145,10 +168,43 @@ const GameStore = Object.assign({}, Events.EventEmitter.prototype, {
     }
 })
 
+// This is a special level where numbered moles must be hit in order.
+function numberLevelStep() {
+    const currentLevel = getCurrentLevel()
+
+    const moleNumbers = []
+    for (let i = 0; i < currentLevel.numRows * currentLevel.numCols; i++) {
+        moleNumbers.push(i)
+    }
+    shuffle(moleNumbers)
+
+    for (let row = 0; row < currentLevel.numRows; row++) {
+        for (let col = 0; col < currentLevel.numCols; col++) {
+            const moleNumber = moleNumbers[row * currentLevel.numCols + col];
+
+            let moleType = Constants.MOLE_TYPES.NUMBER
+            // If it's the last mole, use the mole type that counts for damage and score
+            if (moleNumber === currentLevel.numRows * currentLevel.numCols - 1) {
+                moleType = Constants.MOLE_TYPES.NUMBER_LAST
+            }
+
+            let initialMoleData = getInitialMoleData(row, col, moleType)
+            initialMoleData.moleNumber = moleNumber
+            state.board[row][col] = initialMoleData
+            state.numMolesShown++
+        }
+    }
+
+    state.currentMoleNumber = 0 // Reset the mole number for the current wave
+}
+
 function scheduleStep() {
     const position = getRandomPosition(state.board)
+    const currentLevel = getCurrentLevel()
 
-    if (state.board[position.row][position.col] === null) {
+    if (state.level === NUMBER_LEVEL) {
+        numberLevelStep()
+    } else if (state.board[position.row][position.col] === null) {
         // Only place a mole if there isn't already something here
         const moleType = getRandomMole()
         const initialMoleData = getInitialMoleData(position.row, position.col, moleType)
@@ -157,9 +213,8 @@ function scheduleStep() {
     }
 
     // Check if we've already won. Don't bother queueing a step if so
-    if (!getCurrentLevel().winCondition(state)) {
+    if (!currentLevel.winCondition(state)) {
         // Automatically queue up the next step
-        const currentLevel = getCurrentLevel()
         const stepRangeMs = currentLevel.stepMaxMs - currentLevel.stepMinMs
         const timeUntilNextStep = (Math.random() * stepRangeMs) + currentLevel.stepMinMs
         state.stepTimeout = new Timer(scheduleStep, timeUntilNextStep)
@@ -175,6 +230,10 @@ function bopMole(row, col) {
     if (moleData.moleState === Constants.MOLE_STATES.DEFEATED ||
         moleData.moleState === Constants.MOLE_STATES.EVADING) { return }
 
+    // Do nothing if the mole is not the correct number
+    if (state.level === NUMBER_LEVEL &&
+        moleData.moleNumber !== state.currentMoleNumber) { return }
+
     // Play a sound
     Helpers.playSound(Constants.SOUNDS.BOP)
 
@@ -188,6 +247,18 @@ function bopMole(row, col) {
     if (moleData.numBops >= moleData.moleType.bopsNeeded) {
         // Clear the remove timeout because the bop will remove it
         moleData.removeTimeout.clear()
+
+        // Increment the mole number for NUMBER_LEVEL
+        state.currentMoleNumber++
+
+        // If we defeated a wave in NUMBER_LEVEL
+        if (moleData.moleType === Constants.MOLE_TYPES.NUMBER_LAST) {
+            state.numWavesDefeated++
+
+            // Re-schedule the next wave for one second from now
+            state.stepTimeout.clear();
+            state.stepTimeout = new Timer(scheduleStep, 1000)
+        }
 
         // When the animation is finished, remove the mole
         moleData.moleState = Constants.MOLE_STATES.DEFEATED

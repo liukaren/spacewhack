@@ -2,6 +2,8 @@ import React, { Component, PropTypes } from 'react'
 import {
     Animated,
     Easing,
+    StyleSheet,
+    Text,
     TouchableWithoutFeedback,
     View
 } from 'react-native'
@@ -64,7 +66,7 @@ export default class Mole extends Component {
                                             outputRange: [0.5, 1]
                                         })
                                     }]
-                               })} />
+                                })} />
                 <Animated.Image source={ image }
                                 style={ Object.assign({}, imageStyle, {
                                     opacity: (
@@ -74,7 +76,9 @@ export default class Mole extends Component {
                                     transform: [{
                                         scale: interpolateAnimationHack(this.props.animValue)
                                     }]
-                                })} />
+                                })}>
+                    { this.renderMoleNumber() }
+                </Animated.Image>
                 <Animated.Image source={ boppedImage }
                                 style={ Object.assign({}, imageStyle, {
                                     opacity: moleState === MOLE_STATES.BOPPED ? 1 : 0,
@@ -84,7 +88,9 @@ export default class Mole extends Component {
                                             outputRange: [1, Constants.MOLE_SHRINK_SCALE, 1]
                                         })
                                     }]
-                                })} />
+                                })}>
+                    { this.renderMoleNumber() }
+                </Animated.Image>
                 <Animated.Image source={ boppedImage }
                                 style={ Object.assign({}, imageStyle, {
                                     opacity: moleState === MOLE_STATES.DEFEATED ? 1 : 0,
@@ -94,7 +100,9 @@ export default class Mole extends Component {
                                             outputRange: [1, 0]
                                         })
                                     }]
-                                })} />
+                                })}>
+                    { this.renderMoleNumber() }
+                </Animated.Image>
                 <Animated.Image source={ Constants.IMG_BOMB }
                                 style={ Object.assign({}, imageStyle, {
                                     transform: [{
@@ -124,7 +132,39 @@ export default class Mole extends Component {
             </View>
         </TouchableWithoutFeedback>
     }
+
+    renderMoleNumber() {
+        if (this.props.moleNumber === undefined || this.props.moleNumber === null) {
+            return null
+        }
+
+        return <View style={ styles.moleNumberContainer }>
+            <Text style={ styles.moleNumber }>
+                { this.props.moleNumber + 1 /* 1-indexed instead of 0-indexed */ }
+            </Text>
+        </View>
+    }
 }
+
+const styles = StyleSheet.create({
+    moleNumberContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+
+        justifyContent: 'center',
+        alignItems: 'center',
+
+        backgroundColor: 'transparent',
+    },
+    moleNumber: {
+        color: 'white',
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+});
 
 Mole.propTypes = {
     level: PropTypes.number.isRequired,
