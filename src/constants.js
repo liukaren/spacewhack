@@ -68,6 +68,7 @@ export const IMG_INNOCENT = require('../images/bunny.png')
 export const IMG_INNOCENT_BOPPED = require('../images/bunnyBopped.png')
 export const IMG_SATELLITE = require('../images/satellite.png')
 export const IMG_LIFE = require('../images/heart.png')
+export const IMG_LIFE_BOPPED = require('../images/heartGreen.png')
 export const IMG_PAUSE = require('../images/pause.png')
 export const IMG_PLANET = require('../images/planet.png')
 export const IMG_ROCK = require('../images/rock.png')
@@ -107,7 +108,7 @@ export const MOLE_TYPES = {
     },
     LIFE: {
         image: IMG_LIFE,
-        boppedImage: IMG_LIFE,
+        boppedImage: IMG_LIFE_BOPPED,
         bopsNeeded: 1,
         lifeValue: 1,
         likelihoodWeight: 0.2,
