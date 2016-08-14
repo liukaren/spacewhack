@@ -1,6 +1,10 @@
 # spacewhack
 A space-themed whack-a-mole game built in React Native.
 
+<img alt="Main screen" src="public/screen1.png" width="200">
+<img alt="In-game screen" src="public/screen2.png" width="200">
+<img alt="Pause screen" src="public/screen3.png" width="200">
+
 ## Contributing
 
 * `npm install`
