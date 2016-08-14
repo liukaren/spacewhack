@@ -58,7 +58,7 @@ function getResetLevelState(currentState, level) {
         level,
         lives: Constants.INITIAL_LIVES,
         score: currentState.score,
-        numMolesShown: 0,
+        numMolesDefeated: 0,
         numWavesDefeated: 0,
     }
 }
@@ -72,7 +72,7 @@ function getResetGameState() {
         level,
         lives: Constants.INITIAL_LIVES,
         score: 0,
-        numMolesShown: 0,
+        numMolesDefeated: 0,
         numWavesDefeated: 0,
     }
 }
@@ -191,7 +191,6 @@ function numberLevelStep() {
             let initialMoleData = getInitialMoleData(row, col, moleType)
             initialMoleData.moleNumber = moleNumber
             state.board[row][col] = initialMoleData
-            state.numMolesShown++
         }
     }
 
@@ -209,7 +208,6 @@ function scheduleStep() {
         const moleType = getRandomMole()
         const initialMoleData = getInitialMoleData(position.row, position.col, moleType)
         state.board[position.row][position.col] = initialMoleData
-        state.numMolesShown++ // TODO: Don't count powerups (and innocents?) as moles
     }
 
     // Check if we've already won. Don't bother queueing a step if so
@@ -247,6 +245,11 @@ function bopMole(row, col) {
     if (moleData.numBops >= moleData.moleType.bopsNeeded) {
         // Clear the remove timeout because the bop will remove it
         moleData.removeTimeout.clear()
+
+        if (moleData.moleType !== Constants.MOLE_TYPES.LIFE &&
+            moleData.moleType !== Constants.MOLE_TYPES.INNOCENT) {
+            state.numMolesDefeated++
+        }
 
         // Increment the mole number for NUMBER_LEVEL
         state.currentMoleNumber++
